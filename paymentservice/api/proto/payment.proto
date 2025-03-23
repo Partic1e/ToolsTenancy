@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "payment/";
+
+import "google/protobuf/wrappers.proto";
+
+service Payment {
+  rpc Deposit(DepositRequest) returns (DepositResponse);
+  rpc WithDraw(WithDrawRequest) returns (WithDrawResponse);
+  rpc Hold(HoldRequest) returns (HoldResponse);
+  rpc Pay(PayRequest) returns (PayResponse);
+}
+
+message DepositRequest {
+  int64 user_id = 1;
+  google.protobuf.StringValue amount = 2;
+}
+
+message DepositResponse {
+  bool success = 1;
+}
+
+message WithDrawRequest {
+  int64 user_id = 1;
+  google.protobuf.StringValue amount = 2;
+}
+
+message WithDrawResponse {
+  bool success = 1;
+}
+
+message HoldRequest {
+  int64 user_id = 1;
+  google.protobuf.StringValue amount = 2;
+}
+
+message HoldResponse {
+  bool success = 1;
+}
+
+message PayRequest {
+  uint64 user_id = 1;
+  uint64 landlord_id = 2;
+  google.protobuf.StringValue rent_amount = 3;
+  google.protobuf.StringValue pledge_amount = 4;
+}
+
+message PayResponse {
+  bool success = 1;
+}

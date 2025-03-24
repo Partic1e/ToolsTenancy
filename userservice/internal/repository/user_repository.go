@@ -11,6 +11,12 @@ import (
 	"userservice/internal/core/entity"
 )
 
+type UserRepositoryInterface interface {
+	GetOrCreateUser(tgID int64) (*entity.User, error)
+	//Реализовать, если/когда будет сервис уведомлений - Привязка почты.
+	//AddOrUpdateUserEmail(email string) (*entity.User, error)
+}
+
 type UserRepository struct {
 	db *sql.DB
 }

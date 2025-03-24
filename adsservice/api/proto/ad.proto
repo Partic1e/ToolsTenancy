@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package ads;
+
+option go_package = "adsservice/api/ads";
+
+service AdService {
+  rpc CreateAd (CreateAdRequest) returns (AdResponse);
+}
+
+message CreateAdRequest {
+  string name = 1;
+  string description = 2;
+  string cost_per_day = 3;
+  string deposit = 4;
+  string photo_path = 5;
+  int64 landlord_id = 6;
+}
+
+message AdResponse {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string cost_per_day = 4;
+  string deposit = 5;
+  string photo_path = 6;
+  int64 landlord_id = 7;
+}

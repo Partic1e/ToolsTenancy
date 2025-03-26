@@ -113,3 +113,24 @@ func (r *AdRepository) GetAdsByCategory(categoryID int64) ([]*entity.Ad, error) 
 	}
 	return ads, nil
 }
+
+func (r *AdRepository) GetAdsByLandlord(landlordID int64) ([]*entity.Ad, error) {
+	rows, err := r.db.Query(`
+		SELECT id, name, description, cost_per_day, deposit, photo_path, landlord_id, category_id
+		FROM ads WHERE landlord_id = $1`, landlordID)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении объявлений: %v", err)
+	}
+	defer rows.Close()
+
+	var ads []*entity.Ad
+	for rows.Next() {
+		var ad entity.Ad
+		err := rows.Scan(&ad.ID, &ad.Name, &ad.Description, &ad.CostPerDay, &ad.Deposit, &ad.PhotoPath, &ad.LandlordId, &ad.CategoryId)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка при сканировании объявлений: %v", err)
+		}
+		ads = append(ads, &ad)
+	}
+	return ads, nil
+}

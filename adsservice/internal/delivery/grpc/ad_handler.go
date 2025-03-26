@@ -18,6 +18,7 @@ type AdHandler struct {
 	deleteUseCase           *usecase.DeleteAdUseCase
 	getCategoriesUseCase    *usecase.GetCategoriesUseCase
 	getAdsByCategoryUseCase *usecase.GetAdsByCategoryUseCase
+	getAdsByLandlordUseCase *usecase.GetAdsByLandlordUseCase
 }
 
 func NewAdHandler(
@@ -26,6 +27,7 @@ func NewAdHandler(
 	deleteUseCase *usecase.DeleteAdUseCase,
 	getCategoriesUseCase *usecase.GetCategoriesUseCase,
 	getAdsByCategoryUseCase *usecase.GetAdsByCategoryUseCase,
+	getAdsByLandlordUseCase *usecase.GetAdsByLandlordUseCase,
 ) *AdHandler {
 	return &AdHandler{
 		createUseCase:           createUseCase,
@@ -33,6 +35,7 @@ func NewAdHandler(
 		deleteUseCase:           deleteUseCase,
 		getCategoriesUseCase:    getCategoriesUseCase,
 		getAdsByCategoryUseCase: getAdsByCategoryUseCase,
+		getAdsByLandlordUseCase: getAdsByLandlordUseCase,
 	}
 }
 
@@ -150,4 +153,27 @@ func (h *AdHandler) GetAdsByCategory(ctx context.Context, req *pb.GetAdsByCatego
 	}
 
 	return &pb.GetAdsByCategoryResponse{Ads: pbAds}, nil
+}
+
+func (h *AdHandler) GetAdsByLandlord(ctx context.Context, req *pb.GetAdsByLandlordRequest) (*pb.GetAdsByLandlordResponse, error) {
+	ads, err := h.getAdsByLandlordUseCase.GetAdsByLandlord(req.LandlordId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "ошибка при получении объявлений: %v", err)
+	}
+
+	var pbAds []*pb.Ad
+	for _, ad := range ads {
+		pbAds = append(pbAds, &pb.Ad{
+			Id:          ad.ID,
+			Name:        ad.Name,
+			Description: ad.Description,
+			CostPerDay:  ad.CostPerDay.String(),
+			Deposit:     ad.Deposit.String(),
+			PhotoPath:   ad.PhotoPath,
+			LandlordId:  ad.LandlordId,
+			CategoryId:  ad.CategoryId,
+		})
+	}
+
+	return &pb.GetAdsByLandlordResponse{Ads: pbAds}, nil
 }

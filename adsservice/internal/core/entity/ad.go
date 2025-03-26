@@ -10,4 +10,5 @@ type Ad struct {
 	Deposit     decimal.Decimal
 	PhotoPath   string
 	LandlordId  int64
+	CategoryId  int64
 }

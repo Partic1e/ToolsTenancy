@@ -14,5 +14,6 @@ message GetOrCreateUserRequest {
 }
 
 message GetOrCreateUserResponse {
-  string balance = 1;
+  int64 tg_id = 1;
+  string balance = 2;
 }

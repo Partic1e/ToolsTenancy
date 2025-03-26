@@ -29,15 +29,15 @@ func (r *UserRepository) GetOrCreateUser(tgID int64) (*entity.User, error) {
 	var user entity.User
 	var balanceStr string
 
-	err := r.db.QueryRow("SELECT id, tg_id, balance, email FROM users WHERE tg_id = $1", tgID).
-		Scan(&user.ID, &user.TgID, &balanceStr, &user.Email)
+	err := r.db.QueryRow("SELECT tg_id, balance, email FROM users WHERE tg_id = $1", tgID).
+		Scan(&user.TgID, &balanceStr, &user.Email)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		defaultBalance := decimal.NewFromFloat(0.00)
 		err = r.db.QueryRow(
-			"INSERT INTO users (tg_id, balance) VALUES ($1, $2) RETURNING id, tg_id, balance, email",
+			"INSERT INTO users (tg_id, balance) VALUES ($1, $2) RETURNING tg_id, balance, email",
 			tgID, defaultBalance).
-			Scan(&user.ID, &user.TgID, &balanceStr, &user.Email)
+			Scan(&user.TgID, &balanceStr, &user.Email)
 
 		if err != nil {
 			return nil, fmt.Errorf("[UserService][Postgres] ошибка при создании пользователя: %v", err)

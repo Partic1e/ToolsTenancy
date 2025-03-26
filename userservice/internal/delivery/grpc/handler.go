@@ -24,6 +24,8 @@ func (h *UserHandler) GetOrCreateUser(ctx context.Context, req *pb.GetOrCreateUs
 		log.Printf("Ошибка получения пользователя: %v", err)
 		return nil, err
 	}
-
-	return &pb.GetOrCreateUserResponse{Balance: user.Balance.String()}, nil
+	return &pb.GetOrCreateUserResponse{
+		TgId:    user.TgID,
+		Balance: user.Balance.String(),
+	}, nil
 }

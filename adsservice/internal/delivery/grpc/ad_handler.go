@@ -2,6 +2,7 @@ package grpc
 
 import (
 	pb "adsservice/api/ad"
+	"adsservice/internal/core/entity"
 	"adsservice/internal/core/usecase"
 	"context"
 	"fmt"
@@ -35,7 +36,7 @@ func NewAdHandler(
 	}
 }
 
-func (h *AdHandler) CreateAd(ctx context.Context, req *pb.CreateAdRequest) (*pb.CreateAdResponse, error) {
+func (h *AdHandler) CreateAd(ctx context.Context, req *pb.CreateAdRequest) (*pb.Ad, error) {
 	costPerDay, err := decimal.NewFromString(req.CostPerDay)
 	if err != nil {
 		return nil, fmt.Errorf("неверный формат стоимости в день: %v", err)
@@ -46,20 +47,30 @@ func (h *AdHandler) CreateAd(ctx context.Context, req *pb.CreateAdRequest) (*pb.
 		return nil, fmt.Errorf("неверный формат депозита: %v", err)
 	}
 
-	ad, err := h.createUseCase.CreateAd(req.Name, req.Description, costPerDay, deposit, req.PhotoPath, req.LandlordId, req.CategoryId)
+	ad := &entity.Ad{
+		Name:        req.Name,
+		Description: req.Description,
+		CostPerDay:  costPerDay,
+		Deposit:     deposit,
+		PhotoPath:   req.PhotoPath,
+		LandlordId:  req.LandlordId,
+		CategoryId:  req.CategoryId,
+	}
+
+	createdAd, err := h.createUseCase.CreateAd(ad)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка при создании объявления: %v", err)
 	}
 
-	return &pb.CreateAdResponse{
-		Id:          ad.ID,
-		Name:        ad.Name,
-		Description: ad.Description,
-		CostPerDay:  ad.CostPerDay.String(),
-		Deposit:     ad.Deposit.String(),
-		PhotoPath:   ad.PhotoPath,
-		LandlordId:  ad.LandlordId,
-		CategoryId:  ad.CategoryId,
+	return &pb.Ad{
+		Id:          createdAd.ID,
+		Name:        createdAd.Name,
+		Description: createdAd.Description,
+		CostPerDay:  createdAd.CostPerDay.String(),
+		Deposit:     createdAd.Deposit.String(),
+		PhotoPath:   createdAd.PhotoPath,
+		LandlordId:  createdAd.LandlordId,
+		CategoryId:  createdAd.CategoryId,
 	}, nil
 }
 
@@ -71,34 +82,34 @@ func (h *AdHandler) DeleteAd(ctx context.Context, req *pb.DeleteAdRequest) (*pb.
 	return &pb.DeleteAdResponse{Success: true}, nil
 }
 
-func (h *AdHandler) UpdateAd(ctx context.Context, req *pb.UpdateAdRequest) (*pb.UpdateAdResponse, error) {
-	_, err := decimal.NewFromString(req.CostPerDay)
+func (h *AdHandler) UpdateAd(ctx context.Context, req *pb.Ad) (*pb.Ad, error) {
+	costPerDay, err := decimal.NewFromString(req.CostPerDay)
 	if err != nil {
 		return nil, fmt.Errorf("неверный формат стоимости в день: %v", err)
 	}
 
-	_, err = decimal.NewFromString(req.Deposit)
+	deposit, err := decimal.NewFromString(req.Deposit)
 	if err != nil {
 		return nil, fmt.Errorf("неверный формат депозита: %v", err)
 	}
 
-	// Вызываем метод UpdateAdUseCase для обновления объявления
-	err = h.updateUseCase.UpdateAd(req.Name, req.Description, req.CostPerDay, req.Deposit, req.PhotoPath, req.Id, req.LandlordId, req.CategoryId)
+	ad := &entity.Ad{
+		ID:          req.Id,
+		Name:        req.Name,
+		Description: req.Description,
+		CostPerDay:  costPerDay,
+		Deposit:     deposit,
+		PhotoPath:   req.PhotoPath,
+		LandlordId:  req.LandlordId,
+		CategoryId:  req.CategoryId,
+	}
+
+	err = h.updateUseCase.UpdateAd(ad)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "ошибка при обновлении объявления: %v", err)
 	}
 
-	// Возвращаем обновленные данные
-	return &pb.UpdateAdResponse{
-		Id:          req.Id,
-		Name:        req.Name,
-		Description: req.Description,
-		CostPerDay:  req.CostPerDay,
-		Deposit:     req.Deposit,
-		PhotoPath:   req.PhotoPath,
-		LandlordId:  req.LandlordId,
-		CategoryId:  req.CategoryId,
-	}, nil
+	return req, nil
 }
 
 func (h *AdHandler) GetAllCategories(ctx context.Context, req *pb.Empty) (*pb.CategoryList, error) {

@@ -5,11 +5,12 @@ package ads;
 option go_package = "adsservice/api/ads";
 
 service AdService {
-  rpc CreateAd (CreateAdRequest) returns (CreateAdResponse);
+  rpc CreateAd (CreateAdRequest) returns (Ad);
   rpc DeleteAd (DeleteAdRequest) returns (DeleteAdResponse);
-  rpc UpdateAd(UpdateAdRequest) returns (UpdateAdResponse);
+  rpc UpdateAd(Ad) returns (Ad);
   rpc GetAllCategories (Empty) returns (CategoryList);
   rpc GetAdsByCategory(GetAdsByCategoryRequest) returns (GetAdsByCategoryResponse);
+  rpc GetAdsByLandlord(GetAdsByLandlordRequest) returns (GetAdsByLandlordResponse);
 }
 
 message CreateAdRequest {
@@ -22,15 +23,15 @@ message CreateAdRequest {
   int64  category_id = 7;
 }
 
-message CreateAdResponse {
-  int64  id = 1;
+message Ad {
+  int64 id = 1;
   string name = 2;
   string description = 3;
   string cost_per_day = 4;
   string deposit = 5;
   string photo_path = 6;
-  int64  landlord_id = 7;
-  int64  category_id = 8;
+  int64 landlord_id = 7;
+  int64 category_id = 8;
 }
 
 message DeleteAdRequest {
@@ -40,28 +41,6 @@ message DeleteAdRequest {
 
 message DeleteAdResponse {
   bool success = 1;
-}
-
-message UpdateAdRequest {
-  int64  id = 1;
-  string name = 2;
-  string description = 3;
-  string cost_per_day = 4;
-  string deposit = 5;
-  string photo_path = 6;
-  int64  landlord_id = 7;
-  int64  category_id = 8;
-}
-
-message UpdateAdResponse {
-  int64  id = 1;
-  string name = 2;
-  string description = 3;
-  string cost_per_day = 4;
-  string deposit = 5;
-  string photo_path = 6;
-  int64  landlord_id = 7;
-  int64  category_id = 8;
 }
 
 message Empty {}
@@ -83,13 +62,11 @@ message GetAdsByCategoryResponse {
   repeated Ad ads = 1;
 }
 
-message Ad {
-  int64 id = 1;
-  string name = 2;
-  string description = 3;
-  string cost_per_day = 4;
-  string deposit = 5;
-  string photo_path = 6;
-  int64 landlord_id = 7;
-  int64 category_id = 8;
+message GetAdsByLandlordRequest {
+  int64 landlord_id = 1;
 }
+
+message GetAdsByLandlordResponse {
+  repeated Ad ads = 1;
+}
+

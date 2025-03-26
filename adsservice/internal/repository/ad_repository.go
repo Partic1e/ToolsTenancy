@@ -4,6 +4,7 @@ import (
 	"adsservice/internal/core/entity"
 	"database/sql"
 	"fmt"
+	"github.com/shopspring/decimal"
 )
 
 type AdRepository struct {
@@ -42,6 +43,17 @@ func (r *AdRepository) DeleteAd(name string, landlordId int64) error {
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("объявление не найдено")
+	}
+
+	return nil
+}
+
+func (r *AdRepository) UpdateAd(name, description string, costPerDay, deposit decimal.Decimal, photoPath string, id, landlordId, categoryId int64) error {
+	query := `UPDATE ads SET name = $1, description = $2, cost_per_day = $3, deposit = $4, photo_path = $5, landlord_id =$6, category_id = $7 WHERE id = $8`
+
+	_, err := r.db.Exec(query, name, description, costPerDay, deposit, photoPath, landlordId, categoryId, id)
+	if err != nil {
+		return fmt.Errorf("не удалось обновить объявление в БД: %v", err)
 	}
 
 	return nil

@@ -9,6 +9,7 @@ service AdService {
   rpc DeleteAd (DeleteAdRequest) returns (DeleteAdResponse);
   rpc UpdateAd(UpdateAdRequest) returns (UpdateAdResponse);
   rpc GetAllCategories (Empty) returns (CategoryList);
+  rpc GetAdsByCategory(GetAdsByCategoryRequest) returns (GetAdsByCategoryResponse);
 }
 
 message CreateAdRequest {
@@ -72,4 +73,23 @@ message Category {
 
 message CategoryList {
   repeated Category categories = 1;
+}
+
+message GetAdsByCategoryRequest {
+  int64 category_id = 1;
+}
+
+message GetAdsByCategoryResponse {
+  repeated Ad ads = 1;
+}
+
+message Ad {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string cost_per_day = 4;
+  string deposit = 5;
+  string photo_path = 6;
+  int64 landlord_id = 7;
+  int64 category_id = 8;
 }

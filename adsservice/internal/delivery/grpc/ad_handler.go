@@ -12,10 +12,11 @@ import (
 
 type AdHandler struct {
 	pb.UnimplementedAdServiceServer
-	createUseCase        *usecase.CreateAdUseCase
-	updateUseCase        *usecase.UpdateAdUseCase
-	deleteUseCase        *usecase.DeleteAdUseCase
-	getCategoriesUseCase *usecase.GetCategoriesUseCase
+	createUseCase           *usecase.CreateAdUseCase
+	updateUseCase           *usecase.UpdateAdUseCase
+	deleteUseCase           *usecase.DeleteAdUseCase
+	getCategoriesUseCase    *usecase.GetCategoriesUseCase
+	getAdsByCategoryUseCase *usecase.GetAdsByCategoryUseCase
 }
 
 func NewAdHandler(
@@ -23,12 +24,14 @@ func NewAdHandler(
 	updateUseCase *usecase.UpdateAdUseCase,
 	deleteUseCase *usecase.DeleteAdUseCase,
 	getCategoriesUseCase *usecase.GetCategoriesUseCase,
+	getAdsByCategoryUseCase *usecase.GetAdsByCategoryUseCase,
 ) *AdHandler {
 	return &AdHandler{
-		createUseCase:        createUseCase,
-		updateUseCase:        updateUseCase,
-		deleteUseCase:        deleteUseCase,
-		getCategoriesUseCase: getCategoriesUseCase,
+		createUseCase:           createUseCase,
+		updateUseCase:           updateUseCase,
+		deleteUseCase:           deleteUseCase,
+		getCategoriesUseCase:    getCategoriesUseCase,
+		getAdsByCategoryUseCase: getAdsByCategoryUseCase,
 	}
 }
 
@@ -113,4 +116,27 @@ func (h *AdHandler) GetAllCategories(ctx context.Context, req *pb.Empty) (*pb.Ca
 	}
 
 	return &pb.CategoryList{Categories: categoryList}, nil
+}
+
+func (h *AdHandler) GetAdsByCategory(ctx context.Context, req *pb.GetAdsByCategoryRequest) (*pb.GetAdsByCategoryResponse, error) {
+	ads, err := h.getAdsByCategoryUseCase.GetAdsByCategory(req.CategoryId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "ошибка при получении объявлений: %v", err)
+	}
+
+	var pbAds []*pb.Ad
+	for _, ad := range ads {
+		pbAds = append(pbAds, &pb.Ad{
+			Id:          ad.ID,
+			Name:        ad.Name,
+			Description: ad.Description,
+			CostPerDay:  ad.CostPerDay.String(),
+			Deposit:     ad.Deposit.String(),
+			PhotoPath:   ad.PhotoPath,
+			LandlordId:  ad.LandlordId,
+			CategoryId:  ad.CategoryId,
+		})
+	}
+
+	return &pb.GetAdsByCategoryResponse{Ads: pbAds}, nil
 }

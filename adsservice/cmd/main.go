@@ -37,8 +37,9 @@ func main() {
 	updateAdUseCase := usecase.NewUpdateAdUseCase(adRepo)
 	deleteAdUseCase := usecase.NewDeleteAdUseCase(adRepo)
 	getCategoriesUseCase := usecase.NewGetCategoriesUseCase(adRepo)
+	getAdsByCategoryUseCase := usecase.NewGetAdsByCategoryUseCase(adRepo)
 
-	adHandler := grpcd.NewAdHandler(createAdUseCase, updateAdUseCase, deleteAdUseCase, getCategoriesUseCase)
+	adHandler := grpcd.NewAdHandler(createAdUseCase, updateAdUseCase, deleteAdUseCase, getCategoriesUseCase, getAdsByCategoryUseCase)
 
 	pb.RegisterAdServiceServer(server, adHandler)
 

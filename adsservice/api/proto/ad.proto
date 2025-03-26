@@ -8,6 +8,7 @@ service AdService {
   rpc CreateAd (CreateAdRequest) returns (CreateAdResponse);
   rpc DeleteAd (DeleteAdRequest) returns (DeleteAdResponse);
   rpc UpdateAd(UpdateAdRequest) returns (UpdateAdResponse);
+  rpc GetAllCategories (Empty) returns (CategoryList);
 }
 
 message CreateAdRequest {
@@ -60,4 +61,15 @@ message UpdateAdResponse {
   string photo_path = 6;
   int64  landlord_id = 7;
   int64  category_id = 8;
+}
+
+message Empty {}
+
+message Category {
+  int64 id = 1;
+  string name = 2;
+}
+
+message CategoryList {
+  repeated Category categories = 1;
 }

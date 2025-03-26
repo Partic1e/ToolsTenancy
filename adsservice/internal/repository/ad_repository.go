@@ -58,3 +58,22 @@ func (r *AdRepository) UpdateAd(name, description string, costPerDay, deposit de
 
 	return nil
 }
+
+func (r *AdRepository) GetAllCategories() ([]entity.Category, error) {
+	rows, err := r.db.Query("SELECT id, name FROM category")
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении категорий: %v", err)
+	}
+	defer rows.Close()
+
+	var categories []entity.Category
+	for rows.Next() {
+		var category entity.Category
+		if err := rows.Scan(&category.ID, &category.Name); err != nil {
+			return nil, fmt.Errorf("ошибка при сканировании строки: %v", err)
+		}
+		categories = append(categories, category)
+	}
+
+	return categories, nil
+}

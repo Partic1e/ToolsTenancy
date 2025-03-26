@@ -12,20 +12,23 @@ import (
 
 type AdHandler struct {
 	pb.UnimplementedAdServiceServer
-	createUseCase *usecase.CreateAdUseCase
-	updateUseCase *usecase.UpdateAdUseCase
-	deleteUseCase *usecase.DeleteAdUseCase
+	createUseCase        *usecase.CreateAdUseCase
+	updateUseCase        *usecase.UpdateAdUseCase
+	deleteUseCase        *usecase.DeleteAdUseCase
+	getCategoriesUseCase *usecase.GetCategoriesUseCase
 }
 
 func NewAdHandler(
 	createUseCase *usecase.CreateAdUseCase,
 	updateUseCase *usecase.UpdateAdUseCase,
 	deleteUseCase *usecase.DeleteAdUseCase,
+	getCategoriesUseCase *usecase.GetCategoriesUseCase,
 ) *AdHandler {
 	return &AdHandler{
-		createUseCase: createUseCase,
-		updateUseCase: updateUseCase,
-		deleteUseCase: deleteUseCase,
+		createUseCase:        createUseCase,
+		updateUseCase:        updateUseCase,
+		deleteUseCase:        deleteUseCase,
+		getCategoriesUseCase: getCategoriesUseCase,
 	}
 }
 
@@ -58,7 +61,7 @@ func (h *AdHandler) CreateAd(ctx context.Context, req *pb.CreateAdRequest) (*pb.
 }
 
 func (h *AdHandler) DeleteAd(ctx context.Context, req *pb.DeleteAdRequest) (*pb.DeleteAdResponse, error) {
-	err := h.deleteUseCase.DeleteAd(req.Name, req.LandlordId)
+	err := h.deleteUseCase.DeleteAd(req.Name, req.LandlordId) // Удаляем по названию
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "ошибка при удалении объявления: %v", err)
 	}
@@ -76,11 +79,13 @@ func (h *AdHandler) UpdateAd(ctx context.Context, req *pb.UpdateAdRequest) (*pb.
 		return nil, fmt.Errorf("неверный формат депозита: %v", err)
 	}
 
+	// Вызываем метод UpdateAdUseCase для обновления объявления
 	err = h.updateUseCase.UpdateAd(req.Name, req.Description, req.CostPerDay, req.Deposit, req.PhotoPath, req.Id, req.LandlordId, req.CategoryId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "ошибка при обновлении объявления: %v", err)
 	}
 
+	// Возвращаем обновленные данные
 	return &pb.UpdateAdResponse{
 		Id:          req.Id,
 		Name:        req.Name,
@@ -91,4 +96,21 @@ func (h *AdHandler) UpdateAd(ctx context.Context, req *pb.UpdateAdRequest) (*pb.
 		LandlordId:  req.LandlordId,
 		CategoryId:  req.CategoryId,
 	}, nil
+}
+
+func (h *AdHandler) GetAllCategories(ctx context.Context, req *pb.Empty) (*pb.CategoryList, error) {
+	categories, err := h.getCategoriesUseCase.GetAllCategories()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "ошибка при получении категорий: %v", err)
+	}
+
+	var categoryList []*pb.Category
+	for _, c := range categories {
+		categoryList = append(categoryList, &pb.Category{
+			Id:   c.ID,
+			Name: c.Name,
+		})
+	}
+
+	return &pb.CategoryList{Categories: categoryList}, nil
 }

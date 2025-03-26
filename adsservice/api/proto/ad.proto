@@ -6,6 +6,7 @@ option go_package = "adsservice/api/ads";
 
 service AdService {
   rpc CreateAd (CreateAdRequest) returns (CreateAdResponse);
+  rpc DeleteAd (DeleteAdRequest) returns (DeleteAdResponse);
 }
 
 message CreateAdRequest {
@@ -29,3 +30,11 @@ message CreateAdResponse {
   int64  category_id = 8;
 }
 
+message DeleteAdRequest {
+  string name = 1;
+  int64  landlord_id = 2;
+}
+
+message DeleteAdResponse {
+  bool success = 1;
+}

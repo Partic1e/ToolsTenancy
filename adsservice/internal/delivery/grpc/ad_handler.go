@@ -6,18 +6,23 @@ import (
 	"context"
 	"fmt"
 	"github.com/shopspring/decimal"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AdHandler struct {
 	pb.UnimplementedAdServiceServer
 	createUseCase *usecase.CreateAdUseCase
+	deleteUseCase *usecase.DeleteAdUseCase
 }
 
 func NewAdHandler(
 	createUseCase *usecase.CreateAdUseCase,
+	deleteUseCase *usecase.DeleteAdUseCase,
 ) *AdHandler {
 	return &AdHandler{
 		createUseCase: createUseCase,
+		deleteUseCase: deleteUseCase,
 	}
 }
 
@@ -47,4 +52,12 @@ func (h *AdHandler) CreateAd(ctx context.Context, req *pb.CreateAdRequest) (*pb.
 		LandlordId:  ad.LandlordId,
 		CategoryId:  ad.CategoryId,
 	}, nil
+}
+
+func (h *AdHandler) DeleteAd(ctx context.Context, req *pb.DeleteAdRequest) (*pb.DeleteAdResponse, error) {
+	err := h.deleteUseCase.DeleteAd(req.Name, req.LandlordId) // Удаляем по названию
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "ошибка при удалении объявления: %v", err)
+	}
+	return &pb.DeleteAdResponse{Success: true}, nil
 }

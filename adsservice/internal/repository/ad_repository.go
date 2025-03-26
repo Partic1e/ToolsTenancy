@@ -28,3 +28,21 @@ func (r *AdRepository) CreateAd(ad *entity.Ad) (*entity.Ad, error) {
 	ad.ID = id
 	return ad, nil
 }
+
+func (r *AdRepository) DeleteAd(name string, landlordId int64) error {
+	result, err := r.db.Exec(`DELETE FROM ads WHERE name = $1 AND landlord_id = $2`, name, landlordId)
+	if err != nil {
+		return fmt.Errorf("ошибка при удалении объявления: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("ошибка при проверке удаления объявления: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("объявление не найдено")
+	}
+
+	return nil
+}

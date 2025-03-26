@@ -5,7 +5,7 @@ package ads;
 option go_package = "adsservice/api/ads";
 
 service AdService {
-  rpc CreateAd (CreateAdRequest) returns (AdResponse);
+  rpc CreateAd (CreateAdRequest) returns (CreateAdResponse);
 }
 
 message CreateAdRequest {
@@ -14,15 +14,18 @@ message CreateAdRequest {
   string cost_per_day = 3;
   string deposit = 4;
   string photo_path = 5;
-  int64 landlord_id = 6;
+  int64  landlord_id = 6;
+  int64  category_id = 7;
 }
 
-message AdResponse {
-  int64 id = 1;
+message CreateAdResponse {
+  int64  id = 1;
   string name = 2;
   string description = 3;
   string cost_per_day = 4;
   string deposit = 5;
   string photo_path = 6;
-  int64 landlord_id = 7;
+  int64  landlord_id = 7;
+  int64  category_id = 8;
 }
+

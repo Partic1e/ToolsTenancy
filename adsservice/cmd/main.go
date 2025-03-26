@@ -30,11 +30,13 @@ func main() {
 	}
 	defer db.Close()
 
-	adRepo := repository.NewAdRepository(db)
-	adUseCase := usecase.NewAdUseCase(adRepo)
-	adHandler := grpcd.NewAdHandler(adUseCase)
-
 	server := grpc.NewServer()
+
+	adRepo := repository.NewAdRepository(db)
+	createAdUseCase := usecase.NewCreateAdUseCase(adRepo)
+
+	adHandler := grpcd.NewAdHandler(createAdUseCase)
+
 	pb.RegisterAdServiceServer(server, adHandler)
 
 	reflection.Register(server)

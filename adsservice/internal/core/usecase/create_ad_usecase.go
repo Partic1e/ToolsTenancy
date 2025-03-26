@@ -6,15 +6,15 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type AdUseCase struct {
+type CreateAdUseCase struct {
 	adRepo *repository.AdRepository
 }
 
-func NewAdUseCase(adRepo *repository.AdRepository) *AdUseCase {
-	return &AdUseCase{adRepo: adRepo}
+func NewCreateAdUseCase(adRepo *repository.AdRepository) *CreateAdUseCase {
+	return &CreateAdUseCase{adRepo: adRepo}
 }
 
-func (uc *AdUseCase) CreateAd(name, description string, costPerDay, deposit decimal.Decimal, photoPath string, landlordId int64) (*entity.Ad, error) {
+func (uc *CreateAdUseCase) CreateAd(name, description string, costPerDay, deposit decimal.Decimal, photoPath string, landlordId, categoryId int64) (*entity.Ad, error) {
 	ad := &entity.Ad{
 		Name:        name,
 		Description: description,
@@ -22,6 +22,7 @@ func (uc *AdUseCase) CreateAd(name, description string, costPerDay, deposit deci
 		Deposit:     deposit,
 		PhotoPath:   photoPath,
 		LandlordId:  landlordId,
+		CategoryId:  categoryId,
 	}
 
 	return uc.adRepo.CreateAd(ad)

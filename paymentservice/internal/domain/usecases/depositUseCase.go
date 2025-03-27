@@ -1,8 +1,8 @@
 package usecases
 
 import (
+	"paymentservice/internal/data/repository"
 	"paymentservice/internal/domain/models"
-	"paymentservice/internal/repository"
 )
 
 type DepositUseCase interface {
@@ -24,7 +24,7 @@ func (d *DepositUseCaseImpl) Invoke(payment models.Payment) error {
 	}
 
 	user.Balance = user.Balance.Add(payment.Amount)
-	err = d.repository.UpdateBalance(user.Id, user.Balance)
+	err = d.repository.UpdateBalance(user.TgId, user.Balance)
 	if err != nil {
 		return err
 	}

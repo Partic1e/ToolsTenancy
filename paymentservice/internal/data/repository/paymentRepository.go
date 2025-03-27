@@ -8,8 +8,8 @@ import (
 )
 
 type PaymentRepository interface {
-	GetUserById(userId uint64) (*models.User, error)
-	UpdateBalance(userId uint64, newBalance decimal.Decimal) error
+	GetUserById(userId int64) (*models.User, error)
+	UpdateBalance(userId int64, newBalance decimal.Decimal) error
 	CreatePayment(payment models.Payment) error
 }
 
@@ -21,18 +21,18 @@ func NewPaymentRepository(db *sql.DB) *PaymentRepositoryImpl {
 	return &PaymentRepositoryImpl{db: db}
 }
 
-func (p *PaymentRepositoryImpl) GetUserById(userId uint64) (*models.User, error) {
+func (p *PaymentRepositoryImpl) GetUserById(userId int64) (*models.User, error) {
 	var user models.User
-	query := "SELECT * FROM users WHERE id = $1"
-	err := p.db.QueryRow(query, userId).Scan(&user.Id, &user.TgId, &user.Balance, &user.Email)
+	query := "SELECT * FROM users WHERE tg_id = $1"
+	err := p.db.QueryRow(query, userId).Scan(&user.TgId, &user.Balance, &user.Email)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (p *PaymentRepositoryImpl) UpdateBalance(userId uint64, newBalance decimal.Decimal) error {
-	query := "UPDATE users SET balance = $2 WHERE id = $1"
+func (p *PaymentRepositoryImpl) UpdateBalance(userId int64, newBalance decimal.Decimal) error {
+	query := "UPDATE users SET balance = $2 WHERE tg_id = $1"
 	_, err := p.db.Exec(query, userId, newBalance)
 	if err != nil {
 		return fmt.Errorf("error: %w", err)

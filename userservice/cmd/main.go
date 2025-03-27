@@ -40,6 +40,6 @@ func main() {
 
 	log.Printf("[UserService][grpc] ✅  - Запущен на :%s\n", cfg.Server.ServerPort)
 	if err := server.Serve(listener); err != nil {
-		log.Fatalf("Ошибка сервера: %v", err)
+		log.Fatalf("[UserService][grpc] ❌  - Ошибка сервера: %v", err)
 	}
 }

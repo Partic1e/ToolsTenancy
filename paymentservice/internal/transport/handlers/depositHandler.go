@@ -20,7 +20,7 @@ func NewDepositHandler(useCase *usecases.DepositUseCaseImpl) *DepositHandler {
 	return &DepositHandler{useCase: useCase}
 }
 
-func (h *DepositHandler) Handle(ctx context.Context, request *pb.DepositRequest) (*pb.DepositResponse, error) {
+func (h *DepositHandler) Deposit(ctx context.Context, request *pb.DepositRequest) (*pb.DepositResponse, error) {
 	if request.Amount == nil {
 		return &pb.DepositResponse{Success: false}, errors.New("error")
 	}
@@ -33,10 +33,10 @@ func (h *DepositHandler) Handle(ctx context.Context, request *pb.DepositRequest)
 	}
 
 	payment := models.Payment{
-		UserId:    uint64(request.UserId),
+		UserId:    int64(request.UserId),
 		Amount:    amount,
 		Type:      "deposit",
-		CreatedAt: time.Now().Unix(),
+		CreatedAt: time.Now(),
 	}
 
 	err = h.useCase.Invoke(payment)

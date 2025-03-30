@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"paymentservice/internal/data/repository"
 	"paymentservice/internal/domain/models"
 )
@@ -17,17 +18,17 @@ func NewDepositUseCase(repository repository.PaymentRepositoryImpl) *DepositUseC
 	return &DepositUseCaseImpl{repository: repository}
 }
 
-func (d *DepositUseCaseImpl) Invoke(payment models.Payment) error {
-	user, err := d.repository.GetUserById(payment.UserId)
+func (d *DepositUseCaseImpl) Invoke(ctx context.Context, payment models.Payment) error {
+	user, err := d.repository.GetUserById(ctx, payment.UserId)
 	if err != nil {
 		return err
 	}
 
 	user.Balance = user.Balance.Add(payment.Amount)
-	err = d.repository.UpdateBalance(user.TgId, user.Balance)
+	err = d.repository.UpdateBalance(ctx, user.TgId, user.Balance)
 	if err != nil {
 		return err
 	}
 
-	return d.repository.CreatePayment(payment)
+	return d.repository.CreatePayment(ctx, payment)
 }

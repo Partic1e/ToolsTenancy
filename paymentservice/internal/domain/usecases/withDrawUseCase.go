@@ -1,9 +1,10 @@
 package usecases
 
 import (
+	"context"
 	"errors"
+	"paymentservice/internal/data/repository"
 	"paymentservice/internal/domain/models"
-	"paymentservice/internal/repository"
 )
 
 type WithdrawUseCase interface {
@@ -18,8 +19,8 @@ func NewWithdrawUseCase(repository repository.PaymentRepositoryImpl) *WithdrawUs
 	return &WithdrawUseCaseImpl{repository: repository}
 }
 
-func (w *WithdrawUseCaseImpl) Invoke(payment models.Payment) error {
-	user, err := w.repository.GetUserById(payment.UserId)
+func (w *WithdrawUseCaseImpl) Invoke(ctx context.Context, payment models.Payment) error {
+	user, err := w.repository.GetUserById(ctx, payment.UserId)
 	if err != nil {
 		return err
 	}
@@ -29,10 +30,10 @@ func (w *WithdrawUseCaseImpl) Invoke(payment models.Payment) error {
 	}
 
 	user.Balance = user.Balance.Sub(payment.Amount)
-	err = w.repository.UpdateBalance(user.Id, user.Balance)
+	err = w.repository.UpdateBalance(ctx, user.TgId, user.Balance)
 	if err != nil {
 		return err
 	}
 
-	return w.repository.CreatePayment(payment)
+	return w.repository.CreatePayment(ctx, payment)
 }

@@ -75,8 +75,16 @@ func main() {
 
 	paymentRepository := repository.NewPaymentRepository(orm)
 	depositUseCase := usecases.NewDepositUseCase(*paymentRepository)
+	withdrawUseCase := usecases.NewWithdrawUseCase(*paymentRepository)
+	holdUseCase := usecases.NewHoldUseCase(*paymentRepository)
+	payUseCase := usecases.NewPayUseCase(*paymentRepository)
 
-	depositHandler := handler.NewDepositHandler(depositUseCase)
+	depositHandler := handler.NewPaymentHandler(
+		depositUseCase,
+		withdrawUseCase,
+		holdUseCase,
+		payUseCase,
+	)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPC.Port))
 	if err != nil {

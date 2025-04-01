@@ -36,3 +36,26 @@ func (r *RentRepository) GetRentsByLandlord(landlordID int64) ([]*entity.Rent, e
 
 	return rents, nil
 }
+
+func (r *RentRepository) GetRentsByRenter(renterID int64) ([]*entity.Rent, error) {
+	query := `SELECT id, status, cost, date_start, date_end, ad_id, landlord_id, renter_id 
+			  FROM rents WHERE renter_id = $1`
+
+	rows, err := r.db.Query(query, renterID)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении аренд по арендателю: %v", err)
+	}
+	defer rows.Close()
+
+	var rents []*entity.Rent
+	for rows.Next() {
+		rent := &entity.Rent{}
+		err := rows.Scan(&rent.ID, &rent.Status, &rent.Cost, &rent.DateStart, &rent.DateEnd, &rent.AdID, &rent.LandlordID, &rent.RenterID)
+		if err != nil {
+			return nil, fmt.Errorf("ошибка при сканировании строки: %v", err)
+		}
+		rents = append(rents, rent)
+	}
+
+	return rents, nil
+}

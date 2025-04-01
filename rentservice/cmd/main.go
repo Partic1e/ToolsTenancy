@@ -33,11 +33,12 @@ func main() {
 	server := grpc.NewServer()
 
 	rentRepo := repository.NewRentRepository(db)
-	getRentsByLandlordUseCase := usecase.NewRentUseCase(rentRepo)
+	getRentsByLandlordUseCase := usecase.NewGetRentsByLandlordUseCase(rentRepo)
+	getRentsByRenterUseCase := usecase.NewGetRentsByRenterUseCase(rentRepo)
 
-	adHandler := grpcd.NewRentHandler(getRentsByLandlordUseCase)
+	rentHandler := grpcd.NewRentHandler(getRentsByLandlordUseCase, getRentsByRenterUseCase)
 
-	pb.RegisterRentServiceServer(server, adHandler)
+	pb.RegisterRentServiceServer(server, rentHandler)
 
 	reflection.Register(server)
 

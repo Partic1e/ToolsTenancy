@@ -5,11 +5,16 @@ package rentservice;
 option go_package = "rentservice/proto";
 
 service RentService {
-  rpc GetRentsByLandlord(GetRentsByLandlordRequest) returns (GetRentsByLandlordResponse);
+  rpc GetRentsByLandlord(GetRentByLandlordRequest) returns (GetResponse);
+  rpc GetRentsByRenter(GetRentByRenterRequest) returns (GetResponse);
 }
 
-message GetRentsByLandlordRequest {
+message GetRentByLandlordRequest {
   int64 landlord_id = 1;
+}
+
+message GetRentByRenterRequest {
+  int64 renter_id = 1;
 }
 
 message Rent {
@@ -23,6 +28,6 @@ message Rent {
   int64 renter_id = 8;
 }
 
-message GetRentsByLandlordResponse {
+message GetResponse {
   repeated Rent rents = 1;
 }

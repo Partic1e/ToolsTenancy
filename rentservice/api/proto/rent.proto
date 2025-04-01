@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package rentservice;
+
+option go_package = "rentservice/proto";
+
+service RentService {
+  rpc GetRentsByLandlord(GetRentsByLandlordRequest) returns (GetRentsByLandlordResponse);
+}
+
+message GetRentsByLandlordRequest {
+  int64 landlord_id = 1;
+}
+
+message Rent {
+  int64 id = 1;
+  string status = 2;
+  string cost = 3;
+  string date_start = 4;
+  string date_end = 5;
+  int64 ad_id = 6;
+  int64 landlord_id = 7;
+  int64 renter_id = 8;
+}
+
+message GetRentsByLandlordResponse {
+  repeated Rent rents = 1;
+}

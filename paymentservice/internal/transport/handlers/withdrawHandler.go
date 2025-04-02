@@ -31,10 +31,10 @@ func (h *WithdrawHandler) Handle(ctx context.Context, request *pb.WithDrawReques
 	}
 
 	payment := models.Payment{
-		UserId:    uint64(request.UserId),
+		UserId:    int64(request.UserId),
 		Amount:    amount,
 		Type:      "withdraw",
-		CreatedAt: time.Now().Unix(),
+		CreatedAt: time.Now(),
 	}
 
 	err = h.useCase.Invoke(payment)

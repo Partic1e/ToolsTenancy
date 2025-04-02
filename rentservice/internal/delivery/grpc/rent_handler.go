@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	pb "rentservice/api/rent"
 	"rentservice/internal/core/usecase"
 )
@@ -11,15 +12,18 @@ type RentHandler struct {
 	pb.UnimplementedRentServiceServer
 	getRentsByLandlordUseCase *usecase.GetRentsByLandlordUseCase
 	getRentsByRenterUseCase   *usecase.GetRentsByRenterUseCase
+	getRentedDatesUseCase     *usecase.GetRentedDatesUseCase
 }
 
 func NewRentHandler(
 	getRentsByLandlordUseCase *usecase.GetRentsByLandlordUseCase,
 	getRentsByRenterUseCase *usecase.GetRentsByRenterUseCase,
+	getRentedDatesUseCase *usecase.GetRentedDatesUseCase,
 ) *RentHandler {
 	return &RentHandler{
 		getRentsByLandlordUseCase: getRentsByLandlordUseCase,
 		getRentsByRenterUseCase:   getRentsByRenterUseCase,
+		getRentedDatesUseCase:     getRentedDatesUseCase,
 	}
 }
 
@@ -67,4 +71,18 @@ func (h *RentHandler) GetRentsByRenter(ctx context.Context, req *pb.GetRentByRen
 	}
 
 	return &pb.GetResponse{Rents: rentList}, nil
+}
+
+func (h *RentHandler) GetRentedDates(ctx context.Context, req *pb.GetRentedDatesRequest) (*pb.GetRentedDatesResponse, error) {
+	dates, err := h.getRentedDatesUseCase.GetRentedDates(req.AdId)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении арендованных дат: %v", err)
+	}
+
+	var pbDates []*timestamppb.Timestamp
+	for _, d := range dates {
+		pbDates = append(pbDates, timestamppb.New(d))
+	}
+
+	return &pb.GetRentedDatesResponse{RentedDates: pbDates}, nil
 }

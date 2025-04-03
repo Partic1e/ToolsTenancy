@@ -12,13 +12,15 @@ type Handler struct {
 	userClient    *grpcclient.GrpcClient
 	paymentClient *grpcclient.GrpcClient
 	adClient      *grpcclient.GrpcClient
+	rentClient    *grpcclient.GrpcClient
 }
 
-func NewHandler(userClient, paymentClient, adClient *grpcclient.GrpcClient) *Handler {
+func NewHandler(userClient, paymentClient, adClient, rentClient *grpcclient.GrpcClient) *Handler {
 	return &Handler{
 		userClient:    userClient,
 		paymentClient: paymentClient,
 		adClient:      adClient,
+		rentClient:    rentClient,
 	}
 }
 
@@ -199,6 +201,72 @@ func (h *Handler) GetAdsByLandlord(c *gin.Context) {
 	}
 
 	resp, err := h.adClient.GetAdsByLandlord(c.Request.Context(), landlordId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetRentsByLandlord(c *gin.Context) {
+	landlordIdStr := c.Query("landlord_id")
+	if landlordIdStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing landlord_id"})
+		return
+	}
+
+	landlordId, err := strconv.ParseInt(landlordIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid landlord_id"})
+		return
+	}
+
+	resp, err := h.rentClient.GetRentsByLandlord(c.Request.Context(), landlordId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetRentsByRenter(c *gin.Context) {
+	renterIdStr := c.Query("renter_id")
+	if renterIdStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing renter_id"})
+		return
+	}
+
+	renterId, err := strconv.ParseInt(renterIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid renter_id"})
+		return
+	}
+
+	resp, err := h.rentClient.GetRentsByRenter(c.Request.Context(), renterId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (h *Handler) GetRentedDates(c *gin.Context) {
+	adIdStr := c.Query("ad_id")
+	if adIdStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing ad_id"})
+		return
+	}
+
+	adId, err := strconv.ParseInt(adIdStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ad_id"})
+		return
+	}
+
+	resp, err := h.rentClient.GetRentedDates(c.Request.Context(), adId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -43,8 +43,9 @@ func main() {
 	userClient := grpcclient.NewGrpcClient(cfg.GRPC.UserService.Host, cfg.GRPC.UserService.Port)
 	paymentClient := grpcclient.NewGrpcClient(cfg.GRPC.PaymentService.Host, cfg.GRPC.PaymentService.Port)
 	adClient := grpcclient.NewGrpcClient(cfg.GRPC.AdService.Host, cfg.GRPC.AdService.Port)
+	rentClient := grpcclient.NewGrpcClient(cfg.GRPC.RentService.Host, cfg.GRPC.RentService.Port)
 
-	h := handler.NewHandler(userClient, paymentClient, adClient)
+	h := handler.NewHandler(userClient, paymentClient, adClient, rentClient)
 	r := httpengine.InitRouter(context.Background(), h)
 
 	addr := fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port)

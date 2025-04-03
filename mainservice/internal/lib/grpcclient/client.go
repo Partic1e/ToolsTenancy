@@ -9,6 +9,7 @@ import (
 	"log"
 	pbAd "mainservice/api/ad"
 	pbPayment "mainservice/api/payment"
+	pbRent "mainservice/api/rent"
 	pbUser "mainservice/api/user"
 	"sync"
 )
@@ -183,6 +184,57 @@ func (c *GrpcClient) GetAdsByLandlord(ctx context.Context, landlordId int64) (*p
 	resp, err := adClient.GetAdsByLandlord(ctx, req)
 	if err != nil {
 		log.Printf("Ошибка при вызове GetAdsByLandlord: %v", err)
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (c *GrpcClient) GetRentsByLandlord(ctx context.Context, landlordId int64) (*pbRent.GetResponse, error) {
+	clientConn := c.conns.Get().(*grpc.ClientConn)
+	defer c.conns.Put(clientConn)
+
+	adClient := pbRent.NewRentServiceClient(clientConn)
+
+	req := &pbRent.GetRentByLandlordRequest{LandlordId: landlordId}
+
+	resp, err := adClient.GetRentsByLandlord(ctx, req)
+	if err != nil {
+		log.Printf("Ошибка при вызове GetRentsByLandlord: %v", err)
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (c *GrpcClient) GetRentsByRenter(ctx context.Context, renterId int64) (*pbRent.GetResponse, error) {
+	clientConn := c.conns.Get().(*grpc.ClientConn)
+	defer c.conns.Put(clientConn)
+
+	adClient := pbRent.NewRentServiceClient(clientConn)
+
+	req := &pbRent.GetRentByRenterRequest{RenterId: renterId}
+
+	resp, err := adClient.GetRentsByRenter(ctx, req)
+	if err != nil {
+		log.Printf("Ошибка при вызове GetRentsByRenter: %v", err)
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+func (c *GrpcClient) GetRentedDates(ctx context.Context, adId int64) (*pbRent.GetRentedDatesResponse, error) {
+	clientConn := c.conns.Get().(*grpc.ClientConn)
+	defer c.conns.Put(clientConn)
+
+	adClient := pbRent.NewRentServiceClient(clientConn)
+
+	req := &pbRent.GetRentedDatesRequest{AdId: adId}
+
+	resp, err := adClient.GetRentedDates(ctx, req)
+	if err != nil {
+		log.Printf("Ошибка при вызове GetRentedDates: %v", err)
 		return nil, err
 	}
 

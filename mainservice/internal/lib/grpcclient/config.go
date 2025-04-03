@@ -5,6 +5,7 @@ type GrpcConfig struct {
 	UserService    ServiceConfig `mapstructure:"UserService"`
 	PaymentService ServiceConfig `mapstructure:"PaymentService"`
 	AdService      ServiceConfig `mapstructure:"AdService"`
+	RentService    ServiceConfig `mapstructure:"RentService"`
 }
 
 type ServiceConfig struct {

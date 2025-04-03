@@ -21,5 +21,9 @@ func InitRouter(ctx context.Context, h *handler.Handler) *gin.Engine {
 	router.GET("/ads/category", h.GetAdsByCategory)
 	router.GET("/ads/landlord", h.GetAdsByLandlord)
 
+	router.GET("/rents/landlord", h.GetRentsByLandlord)
+	router.GET("/rents/renter", h.GetRentsByRenter)
+	router.GET("/rents/dates", h.GetRentedDates)
+
 	return router
 }

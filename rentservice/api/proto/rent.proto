@@ -33,6 +33,7 @@ message Rent {
   int64 ad_id = 6;
   int64 landlord_id = 7;
   int64 renter_id = 8;
+  int64 held_id = 9;
 }
 
 message GetResponse {

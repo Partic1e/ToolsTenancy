@@ -143,3 +143,19 @@ func (r *PaymentRepositoryImpl) CreateTransaction(ctx context.Context, payment m
 		VALUES (?, ?, ?, ?)`, payment.UserId, payment.Amount.String(), payment.Type, payment.CreatedAt)
 	return err
 }
+
+func (r *PaymentRepositoryImpl) GetHeldFundsAmount(ctx context.Context, heldFundsID int64) (decimal.Decimal, decimal.Decimal, error) {
+	var rentAmount, pledgeAmount decimal.Decimal
+
+	row := r.db.QueryRowContext(ctx, `
+        SELECT rent_amount, pledge_amount
+        FROM WithheldFunds
+        WHERE id = ?`, heldFundsID)
+
+	err := row.Scan(&rentAmount, &pledgeAmount)
+	if err != nil {
+		return decimal.Zero, decimal.Zero, err
+	}
+
+	return rentAmount, pledgeAmount, nil
+}

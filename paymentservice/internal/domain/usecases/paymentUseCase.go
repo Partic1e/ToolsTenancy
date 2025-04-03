@@ -107,11 +107,14 @@ func (uc *PaymentUseCaseImpl) CompleteRent(
 	renterID,
 	heldFundsID,
 	landlordID int64,
-	rentAmount,
-	pledgeAmount decimal.Decimal,
 	toLandlord bool,
 ) error {
-	err := uc.repo.ReleaseHeldFunds(ctx, renterID, heldFundsID, landlordID, rentAmount, pledgeAmount, toLandlord)
+	rentAmount, pledgeAmount, err := uc.repo.GetHeldFundsAmount(ctx, heldFundsID)
+	if err != nil {
+		return err
+	}
+
+	err = uc.repo.ReleaseHeldFunds(ctx, renterID, heldFundsID, landlordID, rentAmount, pledgeAmount, toLandlord)
 	if err != nil {
 		return err
 	}

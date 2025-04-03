@@ -46,8 +46,6 @@ message CompleteRentRequest {
   int64 renter_id = 1;
   int64 landlord_id = 2;
   int64 heldFundsID = 3;
-  string rent_amount = 4;
-  string pledge_amount = 5;
   bool to_landlord = 6;
 }
 

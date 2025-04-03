@@ -83,19 +83,7 @@ func (h *PaymentHandler) Hold(ctx context.Context, request *pb.HoldRequest) (*pb
 }
 
 func (h *PaymentHandler) CompleteRent(ctx context.Context, request *pb.CompleteRentRequest) (*pb.CompleteRentResponse, error) {
-	rentAmount, err := decimal.NewFromString(request.RentAmount)
-	if err != nil {
-		log.Println("Invalid rent amount format:", err)
-		return &pb.CompleteRentResponse{Success: false}, err
-	}
-
-	pledgeAmount, err := decimal.NewFromString(request.PledgeAmount)
-	if err != nil {
-		log.Println("Invalid pledge amount format:", err)
-		return &pb.CompleteRentResponse{Success: false}, err
-	}
-
-	err = h.paymentUseCase.CompleteRent(ctx, request.RenterId, request.LandlordId, request.HeldFundsID, rentAmount, pledgeAmount, request.ToLandlord)
+	err := h.paymentUseCase.CompleteRent(ctx, request.RenterId, request.LandlordId, request.HeldFundsID, request.ToLandlord)
 	if err != nil {
 		log.Println("Complete rent error:", err)
 		return &pb.CompleteRentResponse{Success: false}, err

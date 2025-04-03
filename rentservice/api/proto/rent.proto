@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package rentservice;
+
+option go_package = "rentservice/proto";
+
+import "google/protobuf/timestamp.proto";
+
+service RentService {
+  rpc GetRentsByLandlord(GetRentByLandlordRequest) returns (GetResponse);
+  rpc GetRentsByRenter(GetRentByRenterRequest) returns (GetResponse);
+  rpc GetRentedDates(GetRentedDatesRequest) returns (GetRentedDatesResponse);
+  rpc CreateRent(CreateRentRequest) returns (CreateRentResponse);
+  rpc CloseRent(CloseRentRequest) returns (CloseRentResponse);
+}
+
+message GetRentByLandlordRequest {
+  int64 landlord_id = 1;
+}
+
+message GetRentByRenterRequest {
+  int64 renter_id = 1;
+}
+
+message GetRentedDatesRequest {
+  int64 ad_id = 1;
+}
+
+message CreateRentRequest {
+  string rent_amount = 1;
+  string pledge_amount = 2;
+  string date_start = 3;
+  string date_end = 4;
+  int64 ad_id = 5;
+  int64 landlord_id = 6;
+  int64 renter_id = 7;
+}
+
+message CloseRentRequest {
+  int64 rent_id = 1;
+  int64 renter_id = 2;
+  int64 landlord_id = 3;
+  int64 held_id = 4;
+  bool to_landlord = 5;
+}
+
+
+message Rent {
+  int64 id = 1;
+  string status = 2;
+  string cost = 3;
+  string date_start = 4;
+  string date_end = 5;
+  int64 ad_id = 6;
+  int64 landlord_id = 7;
+  int64 renter_id = 8;
+  int64 held_id = 9;
+}
+
+message GetResponse {
+  repeated Rent rents = 1;
+}
+
+message GetRentedDatesResponse {
+  repeated google.protobuf.Timestamp rented_dates = 1;
+}
+
+message CreateRentResponse {
+  bool success = 1;
+}
+
+message CloseRentResponse {
+  bool success = 1;
+}

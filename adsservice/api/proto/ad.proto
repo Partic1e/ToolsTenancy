@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package ads;
+
+option go_package = "adsservice/api/ads";
+
+service AdService {
+  rpc CreateAd (CreateAdRequest) returns (Ad);
+  rpc DeleteAd (DeleteAdRequest) returns (DeleteAdResponse);
+  rpc UpdateAd(Ad) returns (Ad);
+  rpc GetAllCategories (Empty) returns (CategoryList);
+  rpc GetAdsByCategory(GetAdsByCategoryRequest) returns (GetAdsByCategoryResponse);
+  rpc GetAdsByLandlord(GetAdsByLandlordRequest) returns (GetAdsByLandlordResponse);
+}
+
+message CreateAdRequest {
+  string name = 1;
+  string description = 2;
+  string cost_per_day = 3;
+  string deposit = 4;
+  string photo_path = 5;
+  int64  landlord_id = 6;
+  int64  category_id = 7;
+}
+
+message Ad {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string cost_per_day = 4;
+  string deposit = 5;
+  string photo_path = 6;
+  int64 landlord_id = 7;
+  int64 category_id = 8;
+}
+
+message DeleteAdRequest {
+  string name = 1;
+  int64  landlord_id = 2;
+}
+
+message DeleteAdResponse {
+  bool success = 1;
+}
+
+message Empty {}
+
+message Category {
+  int64 id = 1;
+  string name = 2;
+}
+
+message CategoryList {
+  repeated Category categories = 1;
+}
+
+message GetAdsByCategoryRequest {
+  int64 category_id = 1;
+}
+
+message GetAdsByCategoryResponse {
+  repeated Ad ads = 1;
+}
+
+message GetAdsByLandlordRequest {
+  int64 landlord_id = 1;
+}
+
+message GetAdsByLandlordResponse {
+  repeated Ad ads = 1;
+}
+

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "api/user/";
+
+
+service UserService {
+  rpc GetOrCreateUser(GetOrCreateUserRequest) returns (GetOrCreateUserResponse);
+}
+
+message GetOrCreateUserRequest {
+  int64 tg_id = 1;
+}
+
+message GetOrCreateUserResponse {
+  int64 tg_id = 1;
+  string balance = 2;
+}

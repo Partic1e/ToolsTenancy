@@ -74,9 +74,8 @@ func main() {
 	defer rabbit.Close()
 
 	paymentRepository := repository.NewPaymentRepository(orm)
-	depositUseCase := usecases.NewDepositUseCase(*paymentRepository)
-
-	depositHandler := handler.NewDepositHandler(depositUseCase)
+	useCases := usecases.NewPaymentUseCase(*paymentRepository)
+	paymentHandler := handler.NewPaymentHandler(*useCases)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPC.Port))
 	if err != nil {
@@ -84,7 +83,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
-	pb.RegisterPaymentServer(grpcServer, depositHandler)
+	pb.RegisterPaymentServiceServer(grpcServer, paymentHandler)
 
 	reflection.Register(grpcServer)
 

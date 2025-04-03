@@ -6,11 +6,12 @@ option go_package = "payment/";
 
 import "google/protobuf/wrappers.proto";
 
-service Payment {
+service PaymentService {
   rpc Deposit(DepositRequest) returns (DepositResponse);
-  rpc WithDraw(WithDrawRequest) returns (WithDrawResponse);
+  rpc Withdraw(WithDrawRequest) returns (WithDrawResponse);
   rpc Hold(HoldRequest) returns (HoldResponse);
   rpc Pay(PayRequest) returns (PayResponse);
+  rpc CompleteRent(CompleteRentRequest) returns (CompleteRentResponse);
 }
 
 message DepositRequest {
@@ -33,7 +34,8 @@ message WithDrawResponse {
 
 message HoldRequest {
   int64 user_id = 1;
-  google.protobuf.StringValue amount = 2;
+  int64 rent_id = 2;
+  google.protobuf.StringValue amount = 3;
 }
 
 message HoldResponse {
@@ -41,12 +43,22 @@ message HoldResponse {
 }
 
 message PayRequest {
-  uint64 user_id = 1;
-  uint64 landlord_id = 2;
-  google.protobuf.StringValue rent_amount = 3;
-  google.protobuf.StringValue pledge_amount = 4;
+  int64 user_id = 1;
+  int64 landlord_id = 2;
+  int64 rent_id = 3;
+  google.protobuf.StringValue rent_amount = 4;
+  google.protobuf.StringValue pledge_amount = 5;
 }
 
 message PayResponse {
+  bool success = 1;
+}
+
+message CompleteRentRequest {
+  int64 rent_id = 1;
+  bool to_landlord = 2;
+}
+
+message CompleteRentResponse {
   bool success = 1;
 }

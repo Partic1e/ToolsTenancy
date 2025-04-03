@@ -19,215 +19,253 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Payment_Deposit_FullMethodName  = "/payment.Payment/Deposit"
-	Payment_WithDraw_FullMethodName = "/payment.Payment/WithDraw"
-	Payment_Hold_FullMethodName     = "/payment.Payment/Hold"
-	Payment_Pay_FullMethodName      = "/payment.Payment/Pay"
+	PaymentService_Deposit_FullMethodName      = "/payment.PaymentService/Deposit"
+	PaymentService_Withdraw_FullMethodName     = "/payment.PaymentService/Withdraw"
+	PaymentService_Hold_FullMethodName         = "/payment.PaymentService/Hold"
+	PaymentService_Pay_FullMethodName          = "/payment.PaymentService/Pay"
+	PaymentService_CompleteRent_FullMethodName = "/payment.PaymentService/CompleteRent"
 )
 
-// PaymentClient is the client API for Payment service.
+// PaymentServiceClient is the client API for PaymentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PaymentClient interface {
+type PaymentServiceClient interface {
 	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error)
-	WithDraw(ctx context.Context, in *WithDrawRequest, opts ...grpc.CallOption) (*WithDrawResponse, error)
+	Withdraw(ctx context.Context, in *WithDrawRequest, opts ...grpc.CallOption) (*WithDrawResponse, error)
 	Hold(ctx context.Context, in *HoldRequest, opts ...grpc.CallOption) (*HoldResponse, error)
 	Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*PayResponse, error)
+	CompleteRent(ctx context.Context, in *CompleteRentRequest, opts ...grpc.CallOption) (*CompleteRentResponse, error)
 }
 
-type paymentClient struct {
+type paymentServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPaymentClient(cc grpc.ClientConnInterface) PaymentClient {
-	return &paymentClient{cc}
+func NewPaymentServiceClient(cc grpc.ClientConnInterface) PaymentServiceClient {
+	return &paymentServiceClient{cc}
 }
 
-func (c *paymentClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error) {
+func (c *paymentServiceClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DepositResponse)
-	err := c.cc.Invoke(ctx, Payment_Deposit_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PaymentService_Deposit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *paymentClient) WithDraw(ctx context.Context, in *WithDrawRequest, opts ...grpc.CallOption) (*WithDrawResponse, error) {
+func (c *paymentServiceClient) Withdraw(ctx context.Context, in *WithDrawRequest, opts ...grpc.CallOption) (*WithDrawResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(WithDrawResponse)
-	err := c.cc.Invoke(ctx, Payment_WithDraw_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PaymentService_Withdraw_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *paymentClient) Hold(ctx context.Context, in *HoldRequest, opts ...grpc.CallOption) (*HoldResponse, error) {
+func (c *paymentServiceClient) Hold(ctx context.Context, in *HoldRequest, opts ...grpc.CallOption) (*HoldResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(HoldResponse)
-	err := c.cc.Invoke(ctx, Payment_Hold_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PaymentService_Hold_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *paymentClient) Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*PayResponse, error) {
+func (c *paymentServiceClient) Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*PayResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PayResponse)
-	err := c.cc.Invoke(ctx, Payment_Pay_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PaymentService_Pay_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PaymentServer is the server API for Payment service.
-// All implementations must embed UnimplementedPaymentServer
-// for forward compatibility.
-type PaymentServer interface {
-	Deposit(context.Context, *DepositRequest) (*DepositResponse, error)
-	WithDraw(context.Context, *WithDrawRequest) (*WithDrawResponse, error)
-	Hold(context.Context, *HoldRequest) (*HoldResponse, error)
-	Pay(context.Context, *PayRequest) (*PayResponse, error)
-	mustEmbedUnimplementedPaymentServer()
+func (c *paymentServiceClient) CompleteRent(ctx context.Context, in *CompleteRentRequest, opts ...grpc.CallOption) (*CompleteRentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CompleteRentResponse)
+	err := c.cc.Invoke(ctx, PaymentService_CompleteRent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-// UnimplementedPaymentServer must be embedded to have
+// PaymentServiceServer is the server API for PaymentService service.
+// All implementations must embed UnimplementedPaymentServiceServer
+// for forward compatibility.
+type PaymentServiceServer interface {
+	Deposit(context.Context, *DepositRequest) (*DepositResponse, error)
+	Withdraw(context.Context, *WithDrawRequest) (*WithDrawResponse, error)
+	Hold(context.Context, *HoldRequest) (*HoldResponse, error)
+	Pay(context.Context, *PayRequest) (*PayResponse, error)
+	CompleteRent(context.Context, *CompleteRentRequest) (*CompleteRentResponse, error)
+	mustEmbedUnimplementedPaymentServiceServer()
+}
+
+// UnimplementedPaymentServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedPaymentServer struct{}
+type UnimplementedPaymentServiceServer struct{}
 
-func (UnimplementedPaymentServer) Deposit(context.Context, *DepositRequest) (*DepositResponse, error) {
+func (UnimplementedPaymentServiceServer) Deposit(context.Context, *DepositRequest) (*DepositResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Deposit not implemented")
 }
-func (UnimplementedPaymentServer) WithDraw(context.Context, *WithDrawRequest) (*WithDrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WithDraw not implemented")
+func (UnimplementedPaymentServiceServer) Withdraw(context.Context, *WithDrawRequest) (*WithDrawResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Withdraw not implemented")
 }
-func (UnimplementedPaymentServer) Hold(context.Context, *HoldRequest) (*HoldResponse, error) {
+func (UnimplementedPaymentServiceServer) Hold(context.Context, *HoldRequest) (*HoldResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Hold not implemented")
 }
-func (UnimplementedPaymentServer) Pay(context.Context, *PayRequest) (*PayResponse, error) {
+func (UnimplementedPaymentServiceServer) Pay(context.Context, *PayRequest) (*PayResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Pay not implemented")
 }
-func (UnimplementedPaymentServer) mustEmbedUnimplementedPaymentServer() {}
-func (UnimplementedPaymentServer) testEmbeddedByValue()                 {}
+func (UnimplementedPaymentServiceServer) CompleteRent(context.Context, *CompleteRentRequest) (*CompleteRentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompleteRent not implemented")
+}
+func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}
+func (UnimplementedPaymentServiceServer) testEmbeddedByValue()                        {}
 
-// UnsafePaymentServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PaymentServer will
+// UnsafePaymentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PaymentServiceServer will
 // result in compilation errors.
-type UnsafePaymentServer interface {
-	mustEmbedUnimplementedPaymentServer()
+type UnsafePaymentServiceServer interface {
+	mustEmbedUnimplementedPaymentServiceServer()
 }
 
-func RegisterPaymentServer(s grpc.ServiceRegistrar, srv PaymentServer) {
-	// If the following call pancis, it indicates UnimplementedPaymentServer was
+func RegisterPaymentServiceServer(s grpc.ServiceRegistrar, srv PaymentServiceServer) {
+	// If the following call pancis, it indicates UnimplementedPaymentServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&Payment_ServiceDesc, srv)
+	s.RegisterService(&PaymentService_ServiceDesc, srv)
 }
 
-func _Payment_Deposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PaymentService_Deposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DepositRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServer).Deposit(ctx, in)
+		return srv.(PaymentServiceServer).Deposit(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Payment_Deposit_FullMethodName,
+		FullMethod: PaymentService_Deposit_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServer).Deposit(ctx, req.(*DepositRequest))
+		return srv.(PaymentServiceServer).Deposit(ctx, req.(*DepositRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Payment_WithDraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PaymentService_Withdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(WithDrawRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServer).WithDraw(ctx, in)
+		return srv.(PaymentServiceServer).Withdraw(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Payment_WithDraw_FullMethodName,
+		FullMethod: PaymentService_Withdraw_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServer).WithDraw(ctx, req.(*WithDrawRequest))
+		return srv.(PaymentServiceServer).Withdraw(ctx, req.(*WithDrawRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Payment_Hold_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PaymentService_Hold_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HoldRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServer).Hold(ctx, in)
+		return srv.(PaymentServiceServer).Hold(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Payment_Hold_FullMethodName,
+		FullMethod: PaymentService_Hold_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServer).Hold(ctx, req.(*HoldRequest))
+		return srv.(PaymentServiceServer).Hold(ctx, req.(*HoldRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Payment_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PaymentService_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PayRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServer).Pay(ctx, in)
+		return srv.(PaymentServiceServer).Pay(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Payment_Pay_FullMethodName,
+		FullMethod: PaymentService_Pay_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServer).Pay(ctx, req.(*PayRequest))
+		return srv.(PaymentServiceServer).Pay(ctx, req.(*PayRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Payment_ServiceDesc is the grpc.ServiceDesc for Payment service.
+func _PaymentService_CompleteRent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompleteRentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServiceServer).CompleteRent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PaymentService_CompleteRent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServiceServer).CompleteRent(ctx, req.(*CompleteRentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PaymentService_ServiceDesc is the grpc.ServiceDesc for PaymentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Payment_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "payment.Payment",
-	HandlerType: (*PaymentServer)(nil),
+var PaymentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "payment.PaymentService",
+	HandlerType: (*PaymentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Deposit",
-			Handler:    _Payment_Deposit_Handler,
+			Handler:    _PaymentService_Deposit_Handler,
 		},
 		{
-			MethodName: "WithDraw",
-			Handler:    _Payment_WithDraw_Handler,
+			MethodName: "Withdraw",
+			Handler:    _PaymentService_Withdraw_Handler,
 		},
 		{
 			MethodName: "Hold",
-			Handler:    _Payment_Hold_Handler,
+			Handler:    _PaymentService_Hold_Handler,
 		},
 		{
 			MethodName: "Pay",
-			Handler:    _Payment_Pay_Handler,
+			Handler:    _PaymentService_Pay_Handler,
+		},
+		{
+			MethodName: "CompleteRent",
+			Handler:    _PaymentService_CompleteRent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

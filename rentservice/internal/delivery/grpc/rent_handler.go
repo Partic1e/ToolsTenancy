@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"log"
 	pb "rentservice/api/rent"
 	"rentservice/internal/core/usecase"
 )
@@ -13,17 +14,20 @@ type RentHandler struct {
 	getRentsByLandlordUseCase *usecase.GetRentsByLandlordUseCase
 	getRentsByRenterUseCase   *usecase.GetRentsByRenterUseCase
 	getRentedDatesUseCase     *usecase.GetRentedDatesUseCase
+	createRentUseCase         *usecase.CrateRentUseCase
 }
 
 func NewRentHandler(
 	getRentsByLandlordUseCase *usecase.GetRentsByLandlordUseCase,
 	getRentsByRenterUseCase *usecase.GetRentsByRenterUseCase,
 	getRentedDatesUseCase *usecase.GetRentedDatesUseCase,
+	createRentUseCase *usecase.CrateRentUseCase,
 ) *RentHandler {
 	return &RentHandler{
 		getRentsByLandlordUseCase: getRentsByLandlordUseCase,
 		getRentsByRenterUseCase:   getRentsByRenterUseCase,
 		getRentedDatesUseCase:     getRentedDatesUseCase,
+		createRentUseCase:         createRentUseCase,
 	}
 }
 
@@ -87,4 +91,14 @@ func (h *RentHandler) GetRentedDates(ctx context.Context, req *pb.GetRentedDates
 	}
 
 	return &pb.GetRentedDatesResponse{RentedDates: pbDates}, nil
+}
+
+func (h *RentHandler) CreateRent(ctx context.Context, req *pb.CreateRentRequest) (*pb.CreateRentResponse, error) {
+	success, err := h.createRentUseCase.CreateRent(ctx, req.RentAmount, req.PledgeAmount, req.DateStart, req.DateEnd, req.AdId, req.LandlordId, req.RenterId)
+	if err != nil {
+		log.Printf("Ошибка при создании аренды: %v", err)
+		return &pb.CreateRentResponse{Success: false}, err
+	}
+
+	return &pb.CreateRentResponse{Success: success}, nil
 }

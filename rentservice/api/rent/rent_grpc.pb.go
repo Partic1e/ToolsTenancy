@@ -22,6 +22,7 @@ const (
 	RentService_GetRentsByLandlord_FullMethodName = "/rentservice.RentService/GetRentsByLandlord"
 	RentService_GetRentsByRenter_FullMethodName   = "/rentservice.RentService/GetRentsByRenter"
 	RentService_GetRentedDates_FullMethodName     = "/rentservice.RentService/GetRentedDates"
+	RentService_CreateRent_FullMethodName         = "/rentservice.RentService/CreateRent"
 )
 
 // RentServiceClient is the client API for RentService service.
@@ -31,6 +32,7 @@ type RentServiceClient interface {
 	GetRentsByLandlord(ctx context.Context, in *GetRentByLandlordRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetRentsByRenter(ctx context.Context, in *GetRentByRenterRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetRentedDates(ctx context.Context, in *GetRentedDatesRequest, opts ...grpc.CallOption) (*GetRentedDatesResponse, error)
+	CreateRent(ctx context.Context, in *CreateRentRequest, opts ...grpc.CallOption) (*CreateRentResponse, error)
 }
 
 type rentServiceClient struct {
@@ -71,6 +73,16 @@ func (c *rentServiceClient) GetRentedDates(ctx context.Context, in *GetRentedDat
 	return out, nil
 }
 
+func (c *rentServiceClient) CreateRent(ctx context.Context, in *CreateRentRequest, opts ...grpc.CallOption) (*CreateRentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateRentResponse)
+	err := c.cc.Invoke(ctx, RentService_CreateRent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RentServiceServer is the server API for RentService service.
 // All implementations must embed UnimplementedRentServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type RentServiceServer interface {
 	GetRentsByLandlord(context.Context, *GetRentByLandlordRequest) (*GetResponse, error)
 	GetRentsByRenter(context.Context, *GetRentByRenterRequest) (*GetResponse, error)
 	GetRentedDates(context.Context, *GetRentedDatesRequest) (*GetRentedDatesResponse, error)
+	CreateRent(context.Context, *CreateRentRequest) (*CreateRentResponse, error)
 	mustEmbedUnimplementedRentServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedRentServiceServer) GetRentsByRenter(context.Context, *GetRent
 }
 func (UnimplementedRentServiceServer) GetRentedDates(context.Context, *GetRentedDatesRequest) (*GetRentedDatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRentedDates not implemented")
+}
+func (UnimplementedRentServiceServer) CreateRent(context.Context, *CreateRentRequest) (*CreateRentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRent not implemented")
 }
 func (UnimplementedRentServiceServer) mustEmbedUnimplementedRentServiceServer() {}
 func (UnimplementedRentServiceServer) testEmbeddedByValue()                     {}
@@ -172,6 +188,24 @@ func _RentService_GetRentedDates_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RentService_CreateRent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RentServiceServer).CreateRent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RentService_CreateRent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RentServiceServer).CreateRent(ctx, req.(*CreateRentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RentService_ServiceDesc is the grpc.ServiceDesc for RentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var RentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRentedDates",
 			Handler:    _RentService_GetRentedDates_Handler,
+		},
+		{
+			MethodName: "CreateRent",
+			Handler:    _RentService_CreateRent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

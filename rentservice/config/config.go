@@ -6,8 +6,13 @@ import (
 )
 
 type Config struct {
-	Server   Server         `mapstructure:"grpc"`
-	Database DatabaseConfig `yaml:"database"`
+	Server         Server         `mapstructure:"grpc"`
+	Database       DatabaseConfig `yaml:"database"`
+	PaymentService PaymentService `mapstructure:"payment_service"`
+}
+
+type PaymentService struct {
+	Address string `mapstructure:"address"`
 }
 
 type Server struct {

@@ -10,6 +10,7 @@ service RentService {
   rpc GetRentsByLandlord(GetRentByLandlordRequest) returns (GetResponse);
   rpc GetRentsByRenter(GetRentByRenterRequest) returns (GetResponse);
   rpc GetRentedDates(GetRentedDatesRequest) returns (GetRentedDatesResponse);
+  rpc CreateRent(CreateRentRequest) returns (CreateRentResponse);
 }
 
 message GetRentByLandlordRequest {
@@ -22,6 +23,16 @@ message GetRentByRenterRequest {
 
 message GetRentedDatesRequest {
   int64 ad_id = 1;
+}
+
+message CreateRentRequest {
+  string rent_amount = 1;
+  string pledge_amount = 2;
+  string date_start = 3;
+  string date_end = 4;
+  int64 ad_id = 5;
+  int64 landlord_id = 6;
+  int64 renter_id = 7;
 }
 
 message Rent {
@@ -42,4 +53,8 @@ message GetResponse {
 
 message GetRentedDatesResponse {
   repeated google.protobuf.Timestamp rented_dates = 1;
+}
+
+message CreateRentResponse {
+  bool success = 1;
 }

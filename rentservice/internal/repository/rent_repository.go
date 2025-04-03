@@ -89,3 +89,25 @@ func (r *RentRepository) GetRentedDates(adID int64) ([]time.Time, error) {
 
 	return rentedDates, nil
 }
+
+func (r *RentRepository) CreateRent(rent entity.Rent) error {
+	query := `
+		INSERT INTO rents (status, cost, date_start, date_end, ad_id, landlord_id, renter_id, held_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+
+	_, err := r.db.Exec(query,
+		rent.Status,
+		rent.Cost,
+		rent.DateStart,
+		rent.DateEnd,
+		rent.AdID,
+		rent.LandlordID,
+		rent.RenterID,
+		rent.HeldID,
+	)
+	if err != nil {
+		return fmt.Errorf("ошибка при создании аренды: %v", err)
+	}
+
+	return nil
+}

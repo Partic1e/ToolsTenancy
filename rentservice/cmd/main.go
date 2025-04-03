@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"rentservice/api/payment"
 	pb "rentservice/api/rent"
 	"rentservice/config"
 	"rentservice/internal/core/usecase"
@@ -32,12 +33,22 @@ func main() {
 
 	server := grpc.NewServer()
 
+	paymentConn, err := grpc.Dial(cfg.PaymentService.Address, grpc.WithInsecure())
+	log.Printf("[RentService][gRPC] Подключение к PaymentService на адресе: %s", cfg.PaymentService.Address)
+	if err != nil {
+		log.Fatalf("[RentService][gRPC] ❌  - Ошибка подключения к PaymentService: %v", err)
+	}
+	defer paymentConn.Close()
+
+	paymentClient := payment.NewPaymentServiceClient(paymentConn)
+
 	rentRepo := repository.NewRentRepository(db)
 	getRentsByLandlordUseCase := usecase.NewGetRentsByLandlordUseCase(rentRepo)
 	getRentsByRenterUseCase := usecase.NewGetRentsByRenterUseCase(rentRepo)
 	getRentedDatesUseCase := usecase.NewGetRentedDatesUseCase(rentRepo)
+	createRentUseCase := usecase.NewRentUseCase(rentRepo, paymentClient)
 
-	rentHandler := grpcd.NewRentHandler(getRentsByLandlordUseCase, getRentsByRenterUseCase, getRentedDatesUseCase)
+	rentHandler := grpcd.NewRentHandler(getRentsByLandlordUseCase, getRentsByRenterUseCase, getRentedDatesUseCase, createRentUseCase)
 
 	pb.RegisterRentServiceServer(server, rentHandler)
 

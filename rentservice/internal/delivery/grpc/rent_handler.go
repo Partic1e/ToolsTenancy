@@ -44,6 +44,7 @@ func (h *RentHandler) GetRentsByLandlord(ctx context.Context, req *pb.GetRentByL
 			AdId:       rent.AdID,
 			LandlordId: rent.LandlordID,
 			RenterId:   rent.RenterID,
+			HeldId:     rent.HeldID,
 		})
 	}
 
@@ -67,6 +68,7 @@ func (h *RentHandler) GetRentsByRenter(ctx context.Context, req *pb.GetRentByRen
 			AdId:       rent.AdID,
 			LandlordId: rent.LandlordID,
 			RenterId:   rent.RenterID,
+			HeldId:     rent.HeldID,
 		})
 	}
 

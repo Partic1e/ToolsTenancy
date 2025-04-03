@@ -11,4 +11,5 @@ type Rent struct {
 	AdID       int64           `json:"ad_id"`
 	LandlordID int64           `json:"landlord_id"`
 	RenterID   int64           `json:"renter_id"`
+	HeldID     int64           `json:"held_id"`
 }

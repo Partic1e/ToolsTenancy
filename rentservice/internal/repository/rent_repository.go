@@ -16,7 +16,7 @@ func NewRentRepository(db *sql.DB) *RentRepository {
 }
 
 func (r *RentRepository) GetRentsByLandlord(landlordID int64) ([]*entity.Rent, error) {
-	query := `SELECT id, status, cost, date_start, date_end, ad_id, landlord_id, renter_id 
+	query := `SELECT id, status, cost, date_start, date_end, ad_id, landlord_id, renter_id, held_id
 			  FROM rents WHERE landlord_id = $1`
 
 	rows, err := r.db.Query(query, landlordID)
@@ -28,7 +28,7 @@ func (r *RentRepository) GetRentsByLandlord(landlordID int64) ([]*entity.Rent, e
 	var rents []*entity.Rent
 	for rows.Next() {
 		rent := &entity.Rent{}
-		err := rows.Scan(&rent.ID, &rent.Status, &rent.Cost, &rent.DateStart, &rent.DateEnd, &rent.AdID, &rent.LandlordID, &rent.RenterID)
+		err := rows.Scan(&rent.ID, &rent.Status, &rent.Cost, &rent.DateStart, &rent.DateEnd, &rent.AdID, &rent.LandlordID, &rent.RenterID, &rent.HeldID)
 		if err != nil {
 			return nil, fmt.Errorf("ошибка при сканировании строки: %v", err)
 		}
@@ -39,7 +39,7 @@ func (r *RentRepository) GetRentsByLandlord(landlordID int64) ([]*entity.Rent, e
 }
 
 func (r *RentRepository) GetRentsByRenter(renterID int64) ([]*entity.Rent, error) {
-	query := `SELECT id, status, cost, date_start, date_end, ad_id, landlord_id, renter_id 
+	query := `SELECT id, status, cost, date_start, date_end, ad_id, landlord_id, renter_id, held_id 
 			  FROM rents WHERE renter_id = $1`
 
 	rows, err := r.db.Query(query, renterID)
@@ -51,7 +51,7 @@ func (r *RentRepository) GetRentsByRenter(renterID int64) ([]*entity.Rent, error
 	var rents []*entity.Rent
 	for rows.Next() {
 		rent := &entity.Rent{}
-		err := rows.Scan(&rent.ID, &rent.Status, &rent.Cost, &rent.DateStart, &rent.DateEnd, &rent.AdID, &rent.LandlordID, &rent.RenterID)
+		err := rows.Scan(&rent.ID, &rent.Status, &rent.Cost, &rent.DateStart, &rent.DateEnd, &rent.AdID, &rent.LandlordID, &rent.RenterID, &rent.HeldID)
 		if err != nil {
 			return nil, fmt.Errorf("ошибка при сканировании строки: %v", err)
 		}

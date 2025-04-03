@@ -10,7 +10,6 @@ service PaymentService {
   rpc Deposit(DepositRequest) returns (DepositResponse);
   rpc Withdraw(WithDrawRequest) returns (WithDrawResponse);
   rpc Hold(HoldRequest) returns (HoldResponse);
-  rpc Pay(PayRequest) returns (PayResponse);
   rpc CompleteRent(CompleteRentRequest) returns (CompleteRentResponse);
 }
 
@@ -33,30 +32,23 @@ message WithDrawResponse {
 }
 
 message HoldRequest {
-  int64 user_id = 1;
-  int64 rent_id = 2;
-  google.protobuf.StringValue amount = 3;
+  int64 renter_id = 1;
+  string rent_amount = 2;
+  string pledge_amount = 3;
 }
 
 message HoldResponse {
   bool success = 1;
-}
-
-message PayRequest {
-  int64 user_id = 1;
-  int64 landlord_id = 2;
-  int64 rent_id = 3;
-  google.protobuf.StringValue rent_amount = 4;
-  google.protobuf.StringValue pledge_amount = 5;
-}
-
-message PayResponse {
-  bool success = 1;
+  int64 heldFundsID = 2;
 }
 
 message CompleteRentRequest {
-  int64 rent_id = 1;
-  bool to_landlord = 2;
+  int64 renter_id = 1;
+  int64 landlord_id = 2;
+  int64 heldFundsID = 3;
+  string rent_amount = 4;
+  string pledge_amount = 5;
+  bool to_landlord = 6;
 }
 
 message CompleteRentResponse {

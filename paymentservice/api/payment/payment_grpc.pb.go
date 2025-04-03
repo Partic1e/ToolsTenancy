@@ -22,7 +22,6 @@ const (
 	PaymentService_Deposit_FullMethodName      = "/payment.PaymentService/Deposit"
 	PaymentService_Withdraw_FullMethodName     = "/payment.PaymentService/Withdraw"
 	PaymentService_Hold_FullMethodName         = "/payment.PaymentService/Hold"
-	PaymentService_Pay_FullMethodName          = "/payment.PaymentService/Pay"
 	PaymentService_CompleteRent_FullMethodName = "/payment.PaymentService/CompleteRent"
 )
 
@@ -33,7 +32,6 @@ type PaymentServiceClient interface {
 	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error)
 	Withdraw(ctx context.Context, in *WithDrawRequest, opts ...grpc.CallOption) (*WithDrawResponse, error)
 	Hold(ctx context.Context, in *HoldRequest, opts ...grpc.CallOption) (*HoldResponse, error)
-	Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*PayResponse, error)
 	CompleteRent(ctx context.Context, in *CompleteRentRequest, opts ...grpc.CallOption) (*CompleteRentResponse, error)
 }
 
@@ -75,16 +73,6 @@ func (c *paymentServiceClient) Hold(ctx context.Context, in *HoldRequest, opts .
 	return out, nil
 }
 
-func (c *paymentServiceClient) Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*PayResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PayResponse)
-	err := c.cc.Invoke(ctx, PaymentService_Pay_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *paymentServiceClient) CompleteRent(ctx context.Context, in *CompleteRentRequest, opts ...grpc.CallOption) (*CompleteRentResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CompleteRentResponse)
@@ -102,7 +90,6 @@ type PaymentServiceServer interface {
 	Deposit(context.Context, *DepositRequest) (*DepositResponse, error)
 	Withdraw(context.Context, *WithDrawRequest) (*WithDrawResponse, error)
 	Hold(context.Context, *HoldRequest) (*HoldResponse, error)
-	Pay(context.Context, *PayRequest) (*PayResponse, error)
 	CompleteRent(context.Context, *CompleteRentRequest) (*CompleteRentResponse, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
@@ -122,9 +109,6 @@ func (UnimplementedPaymentServiceServer) Withdraw(context.Context, *WithDrawRequ
 }
 func (UnimplementedPaymentServiceServer) Hold(context.Context, *HoldRequest) (*HoldResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Hold not implemented")
-}
-func (UnimplementedPaymentServiceServer) Pay(context.Context, *PayRequest) (*PayResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Pay not implemented")
 }
 func (UnimplementedPaymentServiceServer) CompleteRent(context.Context, *CompleteRentRequest) (*CompleteRentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CompleteRent not implemented")
@@ -204,24 +188,6 @@ func _PaymentService_Hold_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PaymentService_Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PayRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PaymentServiceServer).Pay(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PaymentService_Pay_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServiceServer).Pay(ctx, req.(*PayRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _PaymentService_CompleteRent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CompleteRentRequest)
 	if err := dec(in); err != nil {
@@ -258,10 +224,6 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Hold",
 			Handler:    _PaymentService_Hold_Handler,
-		},
-		{
-			MethodName: "Pay",
-			Handler:    _PaymentService_Pay_Handler,
 		},
 		{
 			MethodName: "CompleteRent",

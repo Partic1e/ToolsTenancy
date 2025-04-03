@@ -26,7 +26,11 @@ func NewPaymentUseCase(repo repository.PaymentRepositoryImpl) *PaymentUseCaseImp
 	return &PaymentUseCaseImpl{repo: repo}
 }
 
-func (uc *PaymentUseCaseImpl) Deposit(ctx context.Context, userID int64, amount decimal.Decimal) error {
+func (uc *PaymentUseCaseImpl) Deposit(
+	ctx context.Context,
+	userID int64,
+	amount decimal.Decimal,
+) error {
 	if amount.LessThanOrEqual(decimal.Zero) {
 		return errors.New("amount must be greater than zero")
 	}
@@ -45,7 +49,11 @@ func (uc *PaymentUseCaseImpl) Deposit(ctx context.Context, userID int64, amount 
 	})
 }
 
-func (uc *PaymentUseCaseImpl) Withdraw(ctx context.Context, userID int64, amount decimal.Decimal) error {
+func (uc *PaymentUseCaseImpl) Withdraw(
+	ctx context.Context,
+	userID int64,
+	amount decimal.Decimal,
+) error {
 	if amount.LessThanOrEqual(decimal.Zero) {
 		return errors.New("amount must be greater than zero")
 	}
@@ -64,62 +72,56 @@ func (uc *PaymentUseCaseImpl) Withdraw(ctx context.Context, userID int64, amount
 	})
 }
 
-func (uc *PaymentUseCaseImpl) HoldFunds(ctx context.Context, userID int64, amount decimal.Decimal, rentID int64) error {
-	if amount.LessThanOrEqual(decimal.Zero) {
-		return errors.New("amount must be greater than zero")
+func (uc *PaymentUseCaseImpl) HoldFunds(
+	ctx context.Context,
+	userID int64,
+	rentAmount,
+	pledgeAmount decimal.Decimal,
+) (int64, error) {
+	if rentAmount.LessThanOrEqual(decimal.Zero) || pledgeAmount.LessThanOrEqual(decimal.Zero) {
+		return -1, errors.New("rent and pledge amounts must be greater than zero")
 	}
 
-	err := uc.repo.HoldFunds(ctx, userID, amount, rentID)
+	heldFundsID, err := uc.repo.HoldFunds(ctx, userID, rentAmount, pledgeAmount)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	log.Printf("Held funds: %s for rent %d by user %d", amount, rentID, userID)
-	return uc.repo.CreateTransaction(ctx, models.Payment{
+	log.Printf("Held funds: rent %s, pledge %s for user %d", rentAmount, pledgeAmount, userID)
+
+	err = uc.repo.CreateTransaction(ctx, models.Payment{
 		UserId:    userID,
-		Amount:    amount,
+		Amount:    rentAmount.Add(pledgeAmount),
 		Type:      "hold",
 		CreatedAt: time.Now(),
 	})
+	if err != nil {
+		return -1, err
+	}
+
+	return heldFundsID, nil
 }
 
-func (uc *PaymentUseCaseImpl) CompleteRent(ctx context.Context, rentID int64, toLandlord bool) error {
-	amount, err := uc.repo.GetHeldAmount(ctx, rentID)
+func (uc *PaymentUseCaseImpl) CompleteRent(
+	ctx context.Context,
+	renterID,
+	heldFundsID,
+	landlordID int64,
+	rentAmount,
+	pledgeAmount decimal.Decimal,
+	toLandlord bool,
+) error {
+	err := uc.repo.ReleaseHeldFunds(ctx, renterID, heldFundsID, landlordID, rentAmount, pledgeAmount, toLandlord)
 	if err != nil {
 		return err
 	}
 
-	err = uc.repo.ReleaseHeldFunds(ctx, rentID, toLandlord)
-	if err != nil {
-		return err
-	}
+	log.Printf("Rent completed. Rent %s, pledge %s transferred. To landlord: %t", rentAmount, pledgeAmount, toLandlord)
 
-	log.Printf("Rent %d completed. Amount %s transferred. To landlord: %t", rentID, amount, toLandlord)
 	return uc.repo.CreateTransaction(ctx, models.Payment{
-		UserId:    rentID,
-		Amount:    amount,
+		UserId:    renterID,
+		Amount:    rentAmount.Add(pledgeAmount),
 		Type:      "release",
-		CreatedAt: time.Now(),
-	})
-}
-
-func (uc *PaymentUseCaseImpl) PayRent(ctx context.Context, userID, landlordID, rentID int64, rentAmount, pledgeAmount decimal.Decimal) error {
-	if rentAmount.LessThanOrEqual(decimal.Zero) || pledgeAmount.LessThanOrEqual(decimal.Zero) {
-		return errors.New("rent and pledge amounts must be greater than zero")
-	}
-
-	totalAmount := rentAmount.Add(pledgeAmount)
-
-	err := uc.repo.HoldFunds(ctx, userID, totalAmount, rentID)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("User %d paid rent: %s and pledge: %s to landlord %d", userID, rentAmount, pledgeAmount, landlordID)
-	return uc.repo.CreateTransaction(ctx, models.Payment{
-		UserId:    userID,
-		Amount:    totalAmount,
-		Type:      "pay_rent",
 		CreatedAt: time.Now(),
 	})
 }

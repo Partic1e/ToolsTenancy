@@ -16,12 +16,20 @@ func NewPaymentRepository(db *sql.DB) *PaymentRepositoryImpl {
 	return &PaymentRepositoryImpl{db: db}
 }
 
-func (r *PaymentRepositoryImpl) Deposit(ctx context.Context, userID int64, amount decimal.Decimal) error {
+func (r *PaymentRepositoryImpl) Deposit(
+	ctx context.Context,
+	userID int64,
+	amount decimal.Decimal,
+) error {
 	_, err := r.db.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", amount.String(), userID)
 	return err
 }
 
-func (r *PaymentRepositoryImpl) Withdraw(ctx context.Context, userID int64, amount decimal.Decimal) error {
+func (r *PaymentRepositoryImpl) Withdraw(
+	ctx context.Context,
+	userID int64,
+	amount decimal.Decimal,
+) error {
 	balance, err := r.GetUserBalance(ctx, userID)
 	if err != nil {
 		return err
@@ -35,86 +43,83 @@ func (r *PaymentRepositoryImpl) Withdraw(ctx context.Context, userID int64, amou
 	return err
 }
 
-func (r *PaymentRepositoryImpl) HoldFunds(ctx context.Context, userID int64, amount decimal.Decimal, rentID int64) error {
+func (r *PaymentRepositoryImpl) HoldFunds(
+	ctx context.Context,
+	userID int64,
+	rentAmount,
+	pledgeAmount decimal.Decimal,
+) (int64, error) { // ✅ Теперь возвращает heldFundsID
 	balance, err := r.GetUserBalance(ctx, userID)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	if balance.LessThan(amount) {
-		return errors.New("insufficient funds")
+	totalAmount := rentAmount.Add(pledgeAmount)
+	if balance.LessThan(totalAmount) {
+		return -1, errors.New("insufficient funds")
 	}
 
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance - ? WHERE id = ?", amount.String(), userID)
+	_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance - ? WHERE id = ?", totalAmount.String(), userID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return -1, err
 	}
 
-	_, err = tx.ExecContext(ctx, "INSERT INTO WithheldFunds (amount, rent_id) VALUES (?, ?)", amount.String(), rentID)
+	result, err := tx.ExecContext(ctx, "INSERT INTO WithheldFunds (pledge, rent_cost) VALUES (?, ?, ?)", pledgeAmount.String(), rentAmount.String())
 	if err != nil {
 		tx.Rollback()
-		return err
+		return -1, err
 	}
 
-	return tx.Commit()
+	heldFundsID, err := result.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return -1, err
+	}
+
+	return heldFundsID, nil
 }
 
-func (r *PaymentRepositoryImpl) ReleaseHeldFunds(ctx context.Context, rentID int64, toLandlord bool) error {
-	var amount decimal.Decimal
-	var renterID, landlordID int64
-
-	err := r.db.QueryRowContext(ctx, `
-		SELECT wf.amount, r.renter_id, r.landlord_id
-		FROM WithheldFunds wf
-		JOIN Rents r ON wf.rent_id = r.id
-		WHERE wf.rent_id = ?`, rentID).Scan(&amount, &renterID, &landlordID)
-	if err != nil {
-		return err
-	}
-
+func (r *PaymentRepositoryImpl) ReleaseHeldFunds(
+	ctx context.Context,
+	renterID,
+	heldFundsID,
+	landlordID int64,
+	rentAmount,
+	pledgeAmount decimal.Decimal,
+	toLandlord bool,
+) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	if toLandlord {
-		_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", amount.String(), landlordID)
+		totalAmount := rentAmount.Add(pledgeAmount)
+		_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", totalAmount.String(), landlordID)
 	} else {
-		_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", amount.String(), renterID)
+		_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", rentAmount.String(), landlordID)
+		if err == nil {
+			_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", pledgeAmount.String(), renterID)
+		}
 	}
+
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, "DELETE FROM WithheldFunds WHERE rent_id = ?", rentID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
-}
-
-func (r *PaymentRepositoryImpl) TransferFunds(ctx context.Context, fromUserID, toUserID int64, amount decimal.Decimal) error {
-	tx, err := r.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance - ? WHERE id = ?", amount.String(), fromUserID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	_, err = tx.ExecContext(ctx, "UPDATE Users SET balance = balance + ? WHERE id = ?", amount.String(), toUserID)
+	_, err = tx.ExecContext(ctx, "DELETE FROM WithheldFunds WHERE id = ?", heldFundsID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -130,15 +135,6 @@ func (r *PaymentRepositoryImpl) GetUserBalance(ctx context.Context, userID int64
 		return decimal.Zero, err
 	}
 	return balance, nil
-}
-
-func (r *PaymentRepositoryImpl) GetHeldAmount(ctx context.Context, rentID int64) (decimal.Decimal, error) {
-	var amount decimal.Decimal
-	err := r.db.QueryRowContext(ctx, "SELECT amount FROM WithheldFunds WHERE rent_id = ?", rentID).Scan(&amount)
-	if err != nil {
-		return decimal.Zero, err
-	}
-	return amount, nil
 }
 
 func (r *PaymentRepositoryImpl) CreateTransaction(ctx context.Context, payment models.Payment) error {

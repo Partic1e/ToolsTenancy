@@ -59,7 +59,7 @@ func (c *GrpcClient) Deposit(ctx context.Context, userId int64, amount string) (
 	clientConn := c.conns.Get().(*grpc.ClientConn)
 	defer c.conns.Put(clientConn)
 
-	paymentClient := pbPayment.NewPaymentClient(clientConn)
+	paymentClient := pbPayment.NewPaymentServiceClient(clientConn)
 
 	req := &pbPayment.DepositRequest{
 		UserId: userId,
@@ -79,14 +79,14 @@ func (c *GrpcClient) WithDraw(ctx context.Context, userId int64, amount string) 
 	clientConn := c.conns.Get().(*grpc.ClientConn)
 	defer c.conns.Put(clientConn)
 
-	paymentClient := pbPayment.NewPaymentClient(clientConn)
+	paymentClient := pbPayment.NewPaymentServiceClient(clientConn)
 
 	req := &pbPayment.WithDrawRequest{
 		UserId: userId,
 		Amount: &wrapperspb.StringValue{Value: amount},
 	}
 
-	resp, err := paymentClient.WithDraw(ctx, req)
+	resp, err := paymentClient.Withdraw(ctx, req)
 	if err != nil {
 		log.Printf("Ошибка при вызове WithDraw: %v", err)
 		return false, err

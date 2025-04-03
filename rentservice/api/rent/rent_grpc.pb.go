@@ -23,6 +23,7 @@ const (
 	RentService_GetRentsByRenter_FullMethodName   = "/rentservice.RentService/GetRentsByRenter"
 	RentService_GetRentedDates_FullMethodName     = "/rentservice.RentService/GetRentedDates"
 	RentService_CreateRent_FullMethodName         = "/rentservice.RentService/CreateRent"
+	RentService_CloseRent_FullMethodName          = "/rentservice.RentService/CloseRent"
 )
 
 // RentServiceClient is the client API for RentService service.
@@ -33,6 +34,7 @@ type RentServiceClient interface {
 	GetRentsByRenter(ctx context.Context, in *GetRentByRenterRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetRentedDates(ctx context.Context, in *GetRentedDatesRequest, opts ...grpc.CallOption) (*GetRentedDatesResponse, error)
 	CreateRent(ctx context.Context, in *CreateRentRequest, opts ...grpc.CallOption) (*CreateRentResponse, error)
+	CloseRent(ctx context.Context, in *CloseRentRequest, opts ...grpc.CallOption) (*CloseRentResponse, error)
 }
 
 type rentServiceClient struct {
@@ -83,6 +85,16 @@ func (c *rentServiceClient) CreateRent(ctx context.Context, in *CreateRentReques
 	return out, nil
 }
 
+func (c *rentServiceClient) CloseRent(ctx context.Context, in *CloseRentRequest, opts ...grpc.CallOption) (*CloseRentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CloseRentResponse)
+	err := c.cc.Invoke(ctx, RentService_CloseRent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RentServiceServer is the server API for RentService service.
 // All implementations must embed UnimplementedRentServiceServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type RentServiceServer interface {
 	GetRentsByRenter(context.Context, *GetRentByRenterRequest) (*GetResponse, error)
 	GetRentedDates(context.Context, *GetRentedDatesRequest) (*GetRentedDatesResponse, error)
 	CreateRent(context.Context, *CreateRentRequest) (*CreateRentResponse, error)
+	CloseRent(context.Context, *CloseRentRequest) (*CloseRentResponse, error)
 	mustEmbedUnimplementedRentServiceServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedRentServiceServer) GetRentedDates(context.Context, *GetRented
 }
 func (UnimplementedRentServiceServer) CreateRent(context.Context, *CreateRentRequest) (*CreateRentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRent not implemented")
+}
+func (UnimplementedRentServiceServer) CloseRent(context.Context, *CloseRentRequest) (*CloseRentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CloseRent not implemented")
 }
 func (UnimplementedRentServiceServer) mustEmbedUnimplementedRentServiceServer() {}
 func (UnimplementedRentServiceServer) testEmbeddedByValue()                     {}
@@ -206,6 +222,24 @@ func _RentService_CreateRent_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RentService_CloseRent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CloseRentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RentServiceServer).CloseRent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RentService_CloseRent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RentServiceServer).CloseRent(ctx, req.(*CloseRentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RentService_ServiceDesc is the grpc.ServiceDesc for RentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +262,10 @@ var RentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateRent",
 			Handler:    _RentService_CreateRent_Handler,
+		},
+		{
+			MethodName: "CloseRent",
+			Handler:    _RentService_CloseRent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

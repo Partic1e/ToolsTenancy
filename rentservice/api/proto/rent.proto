@@ -11,6 +11,7 @@ service RentService {
   rpc GetRentsByRenter(GetRentByRenterRequest) returns (GetResponse);
   rpc GetRentedDates(GetRentedDatesRequest) returns (GetRentedDatesResponse);
   rpc CreateRent(CreateRentRequest) returns (CreateRentResponse);
+  rpc CloseRent(CloseRentRequest) returns (CloseRentResponse);
 }
 
 message GetRentByLandlordRequest {
@@ -35,6 +36,15 @@ message CreateRentRequest {
   int64 renter_id = 7;
 }
 
+message CloseRentRequest {
+  int64 rent_id = 1;
+  int64 renter_id = 2;
+  int64 landlord_id = 3;
+  int64 held_id = 4;
+  bool to_landlord = 5;
+}
+
+
 message Rent {
   int64 id = 1;
   string status = 2;
@@ -56,5 +66,9 @@ message GetRentedDatesResponse {
 }
 
 message CreateRentResponse {
+  bool success = 1;
+}
+
+message CloseRentResponse {
   bool success = 1;
 }

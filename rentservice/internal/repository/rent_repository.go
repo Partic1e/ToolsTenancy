@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"rentservice/internal/core/entity"
 	"time"
@@ -109,5 +110,13 @@ func (r *RentRepository) CreateRent(rent entity.Rent) error {
 		return fmt.Errorf("ошибка при создании аренды: %v", err)
 	}
 
+	return nil
+}
+
+func (r *RentRepository) CompleteRent(rentID int64) error {
+	_, err := r.db.Exec("UPDATE Rents SET status = 'complete' WHERE id = ?", rentID)
+	if err != nil {
+		return errors.New("failed to update rent status to 'complete'")
+	}
 	return nil
 }

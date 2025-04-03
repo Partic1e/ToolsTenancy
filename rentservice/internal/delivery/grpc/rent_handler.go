@@ -15,6 +15,7 @@ type RentHandler struct {
 	getRentsByRenterUseCase   *usecase.GetRentsByRenterUseCase
 	getRentedDatesUseCase     *usecase.GetRentedDatesUseCase
 	createRentUseCase         *usecase.CrateRentUseCase
+	closeRentUseCase          *usecase.CloseRentUseCase
 }
 
 func NewRentHandler(
@@ -22,12 +23,14 @@ func NewRentHandler(
 	getRentsByRenterUseCase *usecase.GetRentsByRenterUseCase,
 	getRentedDatesUseCase *usecase.GetRentedDatesUseCase,
 	createRentUseCase *usecase.CrateRentUseCase,
+	closeRentUseCase *usecase.CloseRentUseCase,
 ) *RentHandler {
 	return &RentHandler{
 		getRentsByLandlordUseCase: getRentsByLandlordUseCase,
 		getRentsByRenterUseCase:   getRentsByRenterUseCase,
 		getRentedDatesUseCase:     getRentedDatesUseCase,
 		createRentUseCase:         createRentUseCase,
+		closeRentUseCase:          closeRentUseCase,
 	}
 }
 
@@ -101,4 +104,13 @@ func (h *RentHandler) CreateRent(ctx context.Context, req *pb.CreateRentRequest)
 	}
 
 	return &pb.CreateRentResponse{Success: success}, nil
+}
+
+func (h *RentHandler) CloseRent(ctx context.Context, req *pb.CloseRentRequest) (*pb.CloseRentResponse, error) {
+	success, err := h.closeRentUseCase.CloseRent(ctx, req.RentId, req.RenterId, req.LandlordId, req.HeldId, req.ToLandlord)
+	if err != nil {
+		log.Printf("Ошибка при закрытии аренды: %v", err)
+		return &pb.CloseRentResponse{Success: false}, err
+	}
+	return &pb.CloseRentResponse{Success: success}, nil
 }

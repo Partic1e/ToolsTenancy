@@ -47,8 +47,13 @@ func main() {
 	getRentsByRenterUseCase := usecase.NewGetRentsByRenterUseCase(rentRepo)
 	getRentedDatesUseCase := usecase.NewGetRentedDatesUseCase(rentRepo)
 	createRentUseCase := usecase.NewRentUseCase(rentRepo, paymentClient)
+	closeRentUseCase := usecase.NewCloseRentUseCase(rentRepo, paymentClient)
 
-	rentHandler := grpcd.NewRentHandler(getRentsByLandlordUseCase, getRentsByRenterUseCase, getRentedDatesUseCase, createRentUseCase)
+	rentHandler := grpcd.NewRentHandler(getRentsByLandlordUseCase,
+		getRentsByRenterUseCase,
+		getRentedDatesUseCase,
+		createRentUseCase,
+		closeRentUseCase)
 
 	pb.RegisterRentServiceServer(server, rentHandler)
 
